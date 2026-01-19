@@ -1,0 +1,39 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  /* ensures padding/border don’t increase width */
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; /* prevents horizontal scroll */
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background-color: #ffffff; /* default background */
+  color: #213547; /* default text color */
+}
+
+/* Ensure inputs, buttons, navbars, and other block elements don’t overflow */
+input,
+button,
+select,
+textarea {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Images and media */
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Optional: fix navbar/search issues on mobile */
+.navbar,
+.mobile-search {
+  width: 100%;
+  box-sizing: border-box;
+}
