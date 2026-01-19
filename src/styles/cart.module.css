@@ -1,0 +1,173 @@
+.page {
+  padding: 20px;
+}
+
+.container {
+  max-width: 950px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.title {
+  text-align: center;
+}
+
+.headerRow {
+  display: flex;
+  font-weight: bold;
+  border-bottom: 2px solid #ddd;
+  padding: 0 15px 10px;
+}
+
+.colProduct {
+  flex: 3;
+}
+
+.colCenter {
+  flex: 1;
+  text-align: center;
+}
+
+.cartRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding: 15px;
+  gap: 15px;
+}
+
+.productInfo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 3;
+}
+
+.productImage {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.productName {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: #007185;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.rightColumn {
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.qtyControls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.qtyControls button {
+  padding: 3px 8px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+
+.qtyControls span {
+  width: 25px;
+}
+
+.subtotal {
+  font-weight: bold;
+  color: #0095ff;
+}
+
+.checkoutWrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.checkoutBox {
+  width: 280px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 18px;
+}
+
+.iconRow {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+}
+
+.iconRow span {
+  width: 1px;
+  background: #ddd;
+}
+
+.iconRow p {
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.summaryRow,
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.totalRow {
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  margin-bottom: 20px;
+}
+
+.priceBlue {
+  color: #0095ff;
+}
+
+.checkoutBtn {
+  width: 100%;
+  padding: 12px;
+  background: black;
+  color: white;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .cartRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rightColumn {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .checkoutWrapper {
+    justify-content: center;
+  }
+}

@@ -1,0 +1,100 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal {
+  width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px;
+  position: relative;
+  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.15);
+}
+
+.closeBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.switchText {
+  text-align: center;
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+.switchLink {
+  text-decoration: underline;
+  cursor: pointer;
+  color: #000;
+}
+
+.input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 40px;
+  font-size: 15px;
+  margin-bottom: 15px;
+}
+
+.loginOptions {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.forgot {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.terms {
+  font-size: 14px;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.error {
+  background: #ffe6e6;
+  color: #cc0000;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+  border: 1px solid #ffb3b3;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 40px;
+  background: #000;
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 600;
+}

@@ -1,0 +1,568 @@
+.loader {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #666;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-top: 40px;
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.categorySection {
+  margin-top: 30px;
+}
+
+.tabsWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 30px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.tab {
+  font-size: 16px;
+  cursor: pointer;
+  padding-bottom: 8px;
+  color: #777;
+}
+
+.activeTab {
+  border-bottom: 3px solid black;
+  color: black;
+}
+
+.mobileBubbleWrapper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.mobileBubble {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 25px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  background: #f0f0f0;
+}
+
+.activeBubble {
+  background: black;
+  color: white;
+}
+
+.productsSection {
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.mobileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.mobileCardWrapper {
+  transform: scale(0.9);
+  margin-bottom: 20px;
+}
+
+.sliderRow {
+  display: flex;
+  overflow: hidden;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sliderItem {
+  padding: 0 8px;
+  margin-bottom: 30px;
+}
+
+.graySection {
+  background: #f9fafb;
+  padding: 60px 0;
+}
+
+.sectionSpacing {
+  margin: 60px 0;
+}
+
+.bestSellersSection {
+  background: white;
+  padding: 60px 20px;
+  text-align: center;
+  margin: 60px 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.bestTitle {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.bestSubtitle {
+  font-size: 16px;
+  color: #555;
+  max-width: 500px;
+  margin: 0 auto 40px;
+}
+
+.sliderContainer {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.arrowButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.left {
+  left: -20px;
+}
+
+.right {
+  right: -20px;
+}
+
+.dotsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: #ccc;
+}
+
+.activeDot {
+  background: black;
+}
+
+.brandStatement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 8%;
+  gap: 50px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  background-color: white;
+}
+
+.brandText {
+  flex: 1 1 400px;
+  min-width: 300px;
+}
+
+.brandTitle {
+  font-size: 42px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.brandDescription {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.7;
+}
+
+.brandImageWrapper {
+  flex: 1 1 400px;
+  min-width: 300px;
+}
+
+.brandImage {
+  width: 100%;
+  border-radius: 12px;
+  object-fit: contain;
+  max-height: 450px;
+}
+
+.howItWorks {
+  padding: 80px 6%;
+  background: #f9fafb;
+  text-align: center;
+}
+
+.howItWorksTitle {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 50px;
+  color: #222;
+}
+
+.howItWorksSteps {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: nowrap;
+}
+
+.howItWorksCard {
+  background: white;
+  padding: 30px 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  flex: 0 0 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s;
+  cursor: default;
+}
+
+.howItWorksImage {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  margin-bottom: 20px;
+}
+
+.howItWorksCardTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.howItWorksDescription {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.navTop {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 25px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.navAuth {
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+}
+
+.navBottom {
+  background-color: #111;
+  padding: 12px 20px;
+}
+
+.navLinks {
+  display: flex;
+  gap: 40px;
+  color: white;
+  justify-content: center;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.bannerContainer {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.bannerTextBox {
+  position: absolute;
+  z-index: 5;
+  transform: translateY(-50%);
+  color: white;
+}
+
+.bannerTitle {
+  font-weight: 800;
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.bannerSubtitle {
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #dedede;
+}
+
+.bannerDescription {
+  line-height: 1.6;
+  margin-bottom: 25px;
+  color: #e6e6e6;
+}
+
+.bannerButtons {
+  display: flex;
+}
+
+.primaryBtn {
+  background: black;
+  color: white;
+  border-radius: 6px;
+  border: none;
+  padding: 12px 28px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondaryBtn {
+  background: white;
+  color: black;
+  border-radius: 6px;
+  border: 2px solid black;
+  padding: 12px 28px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sideSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px 8%;
+  gap: 50px;
+  flex-wrap: wrap;
+  background-color: white;
+}
+
+.sideImageWrapper {
+  flex: 1 1 400px;
+  min-width: 300px;
+}
+
+.sideImage {
+  width: 100%;
+  max-height: 450px;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.sideText {
+  flex: 1 1 400px;
+  min-width: 300px;
+}
+
+.sideTitle {
+  font-size: 38px;
+  font-weight: 800;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.sideParagraph {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.testimonialsSection {
+  padding: 80px 6%;
+  background: #f9fafb;
+  text-align: center;
+}
+
+.testimonialsTitle {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 50px;
+  color: #222;
+}
+
+.testimonialsWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.testimonialCard {
+  width: 100%;
+  position: absolute;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.8s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.activeTestimonial {
+  position: relative;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hiddenTestimonial {
+  pointer-events: none;
+}
+
+.testimonialSpacer {
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.testimonialText {
+  font-size: 20px;
+  font-style: italic;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.testimonialName {
+  font-weight: 700;
+  color: #111;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.testimonialRole {
+  color: #777;
+  font-size: 14px;
+}
+
+.testimonialDots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.testimonialDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.testimonialDot.activeDot {
+  background: #111;
+  transform: scale(1.3);
+}
+
+.confidenceSection {
+  width: 100%;
+  padding: 80px 6%;
+  background: #f9fafb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.confidenceTitle {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.confidenceSubtitle {
+  font-size: 18px;
+  color: #555;
+  max-width: 700px;
+  margin-bottom: 50px;
+}
+
+.confidenceGrid {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 20px;
+}
+
+.confidenceCard {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 30px 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: default;
+  min-height: 250px;
+  transition: transform 0.3s;
+}
+
+.confidenceIcon {
+  margin-bottom: 20px;
+}
+
+.confidenceCardTitle {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.confidenceCardDesc {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+}

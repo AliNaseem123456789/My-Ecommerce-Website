@@ -1,0 +1,79 @@
+/* StaticPages.css */
+
+.static-container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 1rem 2rem;
+  line-height: 1.8;
+  color: #4b5563;
+  font-family: "Inter", "Arial", sans-serif;
+}
+
+.static-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #111827;
+}
+
+.static-subtitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.static-text {
+  margin-bottom: 1.5rem;
+}
+
+.static-list {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.static-list li {
+  margin-bottom: 0.5rem;
+}
+
+.static-date {
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 3rem;
+  display: block;
+}
+
+.blue-accent-title {
+  color: #1e40af; /* Used for Refund policy */
+}
+
+@media (max-width: 600px) {
+  .static-title {
+    font-size: 1.8rem;
+  }
+  .static-container {
+    padding: 1rem;
+  }
+}
+
+/* Add this to your existing StaticPages.css */
+.static-link {
+  color: #2563eb;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 600;
+  margin-left: 4px;
+  transition: color 0.2s;
+}
+
+.static-link:hover {
+  color: #1d4ed8;
+}
+
+.static-divider {
+  border-bottom: 1px solid #e5e7eb;
+  margin: 2rem 0;
+}

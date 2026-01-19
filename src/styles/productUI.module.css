@@ -1,0 +1,66 @@
+.addToCartBtn {
+  border-radius: 50px !important;
+  background: #f1f1f1 !important;
+  color: black !important;
+  font-weight: 700 !important;
+  height: 52px;
+  box-shadow: none !important;
+}
+.askQuestion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 25px;
+  transition: background 0.2s ease;
+}
+
+.askQuestion:hover {
+  background: #f3f4f6;
+}
+.galleryWrapper {
+  display: flex;
+  gap: 16px;
+}
+
+.thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  object-fit: cover;
+}
+
+.thumbActive {
+  border: 2px solid #1976d2;
+}
+
+.mainImageWrapper {
+  padding: 16px;
+  border-radius: 14px;
+}
+
+.mainImage {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 14px;
+}
+
+.tabsWrapper {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.wishlist {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
