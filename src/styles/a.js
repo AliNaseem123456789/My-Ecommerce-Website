@@ -1,4 +1,3 @@
-// src/styles/homeStyles.js
 export const homeStyles = {
   loader: {
     height: "100vh",
