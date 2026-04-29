@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
-  // baseURL: "https://ecommerce-website-backend-k4vc.onrender.com/api/v1",
+  // baseURL: "http://localhost:3000/api/v1",
+  baseURL: "https://ecommerce-website-backend-k4vc.onrender.com/api/v1",
   // baseURL:
   // "https://ecommerce-website-backend-production-70d5.up.railway.app/api/v1",
 
