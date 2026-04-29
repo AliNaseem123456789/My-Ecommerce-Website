@@ -11,12 +11,16 @@ export default function Sidebar({ activeTab, setActiveTab, logout, user }) {
     "Compare",
     "Wishlist",
   ];
-
+  const displayName =
+    user?.name ||
+    user?.user_metadata?.name ||
+    user?.email?.split("@")[0] ||
+    "User";
   return (
     <div className="sidebar-container">
       <div className="profile-section">
         <div className="profile-avatar"></div>
-        <p className="profile-name">{user?.user_metadata?.name || "User"}</p>
+        <p className="profile-name">{displayName}</p>
       </div>
       <div className="sidebar-menu">
         {tabs.map((item) => (

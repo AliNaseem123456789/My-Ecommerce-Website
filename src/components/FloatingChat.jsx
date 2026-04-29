@@ -19,13 +19,17 @@ const FloatingChat = ({
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef(null);
 
-  // Styles
+  // Responsive styles
   const styles = {
     container: {
       position: "fixed",
-      bottom: "24px",
-      right: "24px",
+      bottom: "16px",
+      right: "16px",
       zIndex: 9999,
+      "@media (min-width: 768px)": {
+        bottom: "24px",
+        right: "24px",
+      },
     },
     floatingButton: {
       width: "56px",
@@ -34,7 +38,6 @@ const FloatingChat = ({
       backgroundColor: primaryColor,
       display: "flex",
       alignItems: "center",
-
       justifyContent: "center",
       cursor: "pointer",
       boxShadow:
@@ -42,6 +45,10 @@ const FloatingChat = ({
       transition: "transform 0.2s ease",
       border: "none",
       color: "white",
+      "@media (max-width: 640px)": {
+        width: "48px",
+        height: "48px",
+      },
     },
     chatWindow: {
       width: "400px",
@@ -52,6 +59,20 @@ const FloatingChat = ({
       display: "flex",
       flexDirection: "column",
       overflow: "hidden",
+      "@media (max-width: 640px)": {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: "100%",
+        height: "100%",
+        borderRadius: 0,
+      },
+      "@media (min-width: 641px) and (max-width: 768px)": {
+        width: "380px",
+        height: "520px",
+      },
     },
     header: {
       backgroundColor: primaryColor,
@@ -60,6 +81,9 @@ const FloatingChat = ({
       justifyContent: "space-between",
       alignItems: "center",
       color: "white",
+      "@media (max-width: 640px)": {
+        padding: "16px",
+      },
     },
     headerLeft: {
       display: "flex",
@@ -90,6 +114,9 @@ const FloatingChat = ({
       background: "transparent",
       border: "none",
       color: "white",
+      "@media (max-width: 640px)": {
+        padding: "8px",
+      },
     },
     messagesContainer: {
       flex: 1,
@@ -99,6 +126,9 @@ const FloatingChat = ({
       display: "flex",
       flexDirection: "column",
       gap: "12px",
+      "@media (max-width: 640px)": {
+        padding: "12px",
+      },
     },
     userMessage: {
       display: "flex",
@@ -114,6 +144,10 @@ const FloatingChat = ({
       padding: "8px 16px",
       borderRadius: "16px",
       maxWidth: "80%",
+      "@media (max-width: 640px)": {
+        maxWidth: "85%",
+        padding: "10px 14px",
+      },
     },
     assistantBubble: {
       backgroundColor: "white",
@@ -122,6 +156,10 @@ const FloatingChat = ({
       borderRadius: "16px",
       maxWidth: "80%",
       boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
+      "@media (max-width: 640px)": {
+        maxWidth: "85%",
+        padding: "10px 14px",
+      },
     },
     errorBubble: {
       backgroundColor: "#fee2e2",
@@ -129,6 +167,10 @@ const FloatingChat = ({
       padding: "8px 16px",
       borderRadius: "16px",
       maxWidth: "80%",
+      "@media (max-width: 640px)": {
+        maxWidth: "85%",
+        padding: "10px 14px",
+      },
     },
     timestamp: {
       fontSize: "10px",
@@ -160,12 +202,17 @@ const FloatingChat = ({
       borderTop: "1px solid #e5e7eb",
       backgroundColor: "white",
       padding: "8px 16px",
+      "@media (max-width: 640px)": {
+        padding: "10px 12px",
+      },
     },
     suggestionsWrapper: {
       display: "flex",
       gap: "8px",
       overflowX: "auto",
       paddingBottom: "8px",
+      WebkitOverflowScrolling: "touch",
+      scrollbarWidth: "thin",
     },
     suggestionButton: {
       whiteSpace: "nowrap",
@@ -176,11 +223,19 @@ const FloatingChat = ({
       fontSize: "12px",
       color: "#4b5563",
       cursor: "pointer",
+      transition: "background-color 0.2s ease",
+      "@media (max-width: 640px)": {
+        padding: "6px 14px",
+        fontSize: "13px",
+      },
     },
     inputArea: {
       borderTop: "1px solid #e5e7eb",
       backgroundColor: "white",
       padding: "16px",
+      "@media (max-width: 640px)": {
+        padding: "12px",
+      },
     },
     inputWrapper: {
       display: "flex",
@@ -194,6 +249,10 @@ const FloatingChat = ({
       fontSize: "14px",
       resize: "none",
       fontFamily: "inherit",
+      "@media (max-width: 640px)": {
+        fontSize: "16px", // Prevents zoom on iOS
+        padding: "10px 12px",
+      },
     },
     sendButton: {
       padding: "8px 16px",
@@ -202,12 +261,22 @@ const FloatingChat = ({
       borderRadius: "12px",
       color: "white",
       cursor: "pointer",
+      transition: "opacity 0.2s ease",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      "@media (max-width: 640px)": {
+        padding: "8px 20px",
+      },
     },
     footerText: {
       textAlign: "center",
       fontSize: "10px",
       color: "#9ca3af",
       marginTop: "8px",
+      "@media (max-width: 640px)": {
+        fontSize: "9px",
+      },
     },
     badge: {
       position: "absolute",
@@ -233,9 +302,27 @@ const FloatingChat = ({
         0%, 60%, 100% { transform: translateY(0); }
         30% { transform: translateY(-10px); }
       }
+      
+      /* Mobile optimizations */
+      @media (max-width: 640px) {
+        .floating-chat-container {
+          touch-action: pan-y pinch-zoom;
+        }
+      }
     `;
     document.head.appendChild(styleSheet);
-  }, []);
+
+    // Prevent body scroll when chat is open on mobile
+    if (isOpen && window.innerWidth <= 640) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     scrollToBottom();
@@ -326,15 +413,28 @@ const FloatingChat = ({
     });
   };
 
+  // Apply responsive styles with media query support
+  const getResponsiveStyle = (baseStyle) => {
+    const style = { ...baseStyle };
+    // Remove media query objects as they can't be applied inline
+    delete style["@media (max-width: 640px)"];
+    delete style["@media (min-width: 641px) and (max-width: 768px)"];
+    delete style["@media (min-width: 768px)"];
+    return style;
+  };
+
   return (
-    <div style={styles.container}>
+    <div
+      style={getResponsiveStyle(styles.container)}
+      className="floating-chat-container"
+    >
       {!isOpen && (
         <button
           onClick={() => {
             setIsOpen(true);
             setUnreadCount(0);
           }}
-          style={styles.floatingButton}
+          style={getResponsiveStyle(styles.floatingButton)}
           onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
           onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
@@ -348,16 +448,18 @@ const FloatingChat = ({
           >
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          {unreadCount > 0 && <span style={styles.badge}>{unreadCount}</span>}
+          {unreadCount > 0 && (
+            <span style={getResponsiveStyle(styles.badge)}>{unreadCount}</span>
+          )}
         </button>
       )}
 
       {isOpen && (
-        <div style={styles.chatWindow}>
+        <div style={getResponsiveStyle(styles.chatWindow)}>
           {/* Header */}
-          <div style={styles.header}>
-            <div style={styles.headerLeft}>
-              <div style={styles.headerIcon}>
+          <div style={getResponsiveStyle(styles.header)}>
+            <div style={getResponsiveStyle(styles.headerLeft)}>
+              <div style={getResponsiveStyle(styles.headerIcon)}>
                 <svg
                   width="20"
                   height="20"
@@ -370,13 +472,18 @@ const FloatingChat = ({
                 </svg>
               </div>
               <div>
-                <div style={styles.headerTitle}>{title}</div>
-                <div style={styles.headerStatus}>
+                <div style={getResponsiveStyle(styles.headerTitle)}>
+                  {title}
+                </div>
+                <div style={getResponsiveStyle(styles.headerStatus)}>
                   Online • Usually replies instantly
                 </div>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} style={styles.closeButton}>
+            <button
+              onClick={() => setIsOpen(false)}
+              style={getResponsiveStyle(styles.closeButton)}
+            >
               <svg
                 width="20"
                 height="20"
@@ -392,23 +499,23 @@ const FloatingChat = ({
           </div>
 
           {/* Messages */}
-          <div style={styles.messagesContainer}>
+          <div style={getResponsiveStyle(styles.messagesContainer)}>
             {messages.map((message, idx) => (
               <div key={idx}>
                 <div
                   style={
                     message.role === "user"
-                      ? styles.userMessage
-                      : styles.assistantMessage
+                      ? getResponsiveStyle(styles.userMessage)
+                      : getResponsiveStyle(styles.assistantMessage)
                   }
                 >
                   <div
                     style={
                       message.isError
-                        ? styles.errorBubble
+                        ? getResponsiveStyle(styles.errorBubble)
                         : message.role === "user"
-                          ? styles.userBubble
-                          : styles.assistantBubble
+                          ? getResponsiveStyle(styles.userBubble)
+                          : getResponsiveStyle(styles.assistantBubble)
                     }
                   >
                     <p
@@ -425,11 +532,11 @@ const FloatingChat = ({
                 <div
                   style={
                     message.role === "user"
-                      ? styles.userTimestamp
-                      : styles.assistantTimestamp
+                      ? getResponsiveStyle(styles.userTimestamp)
+                      : getResponsiveStyle(styles.assistantTimestamp)
                   }
                 >
-                  <span style={styles.timestamp}>
+                  <span style={getResponsiveStyle(styles.timestamp)}>
                     {formatTime(message.timestamp)}
                   </span>
                 </div>
@@ -437,16 +544,25 @@ const FloatingChat = ({
             ))}
 
             {isLoading && (
-              <div style={styles.assistantMessage}>
-                <div style={styles.typingIndicator}>
+              <div style={getResponsiveStyle(styles.assistantMessage)}>
+                <div style={getResponsiveStyle(styles.typingIndicator)}>
                   <div
-                    style={{ ...styles.typingDot, animationDelay: "0s" }}
+                    style={{
+                      ...getResponsiveStyle(styles.typingDot),
+                      animationDelay: "0s",
+                    }}
                   ></div>
                   <div
-                    style={{ ...styles.typingDot, animationDelay: "0.2s" }}
+                    style={{
+                      ...getResponsiveStyle(styles.typingDot),
+                      animationDelay: "0.2s",
+                    }}
                   ></div>
                   <div
-                    style={{ ...styles.typingDot, animationDelay: "0.4s" }}
+                    style={{
+                      ...getResponsiveStyle(styles.typingDot),
+                      animationDelay: "0.4s",
+                    }}
                   ></div>
                 </div>
               </div>
@@ -455,8 +571,8 @@ const FloatingChat = ({
           </div>
 
           {/* Quick Suggestions */}
-          <div style={styles.quickSuggestions}>
-            <div style={styles.suggestionsWrapper}>
+          <div style={getResponsiveStyle(styles.quickSuggestions)}>
+            <div style={getResponsiveStyle(styles.suggestionsWrapper)}>
               {["Best selling items", "Shipping policy", "Track my order"].map(
                 (suggestion) => (
                   <button
@@ -465,7 +581,7 @@ const FloatingChat = ({
                       setInput(suggestion);
                       setTimeout(() => sendMessage(), 100);
                     }}
-                    style={styles.suggestionButton}
+                    style={getResponsiveStyle(styles.suggestionButton)}
                     onMouseEnter={(e) =>
                       (e.currentTarget.style.backgroundColor = "#f9fafb")
                     }
@@ -481,21 +597,21 @@ const FloatingChat = ({
           </div>
 
           {/* Input Area */}
-          <div style={styles.inputArea}>
-            <div style={styles.inputWrapper}>
+          <div style={getResponsiveStyle(styles.inputArea)}>
+            <div style={getResponsiveStyle(styles.inputWrapper)}>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="Type your message..."
-                style={styles.textarea}
+                style={getResponsiveStyle(styles.textarea)}
                 rows={1}
               />
               <button
                 onClick={sendMessage}
                 disabled={isLoading || !input.trim()}
                 style={{
-                  ...styles.sendButton,
+                  ...getResponsiveStyle(styles.sendButton),
                   opacity: isLoading || !input.trim() ? 0.5 : 1,
                   cursor:
                     isLoading || !input.trim() ? "not-allowed" : "pointer",
@@ -522,7 +638,7 @@ const FloatingChat = ({
                 </svg>
               </button>
             </div>
-            <p style={styles.footerText}>
+            <p style={getResponsiveStyle(styles.footerText)}>
               Powered by AI • Responses are generated automatically
             </p>
           </div>

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef, // ← Capital 'R'
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaUser,
@@ -19,7 +25,10 @@ import { AuthContext } from "./context/AuthContext";
 import CartSidebar from "../components/CartSidebar";
 import AuthModal from "../components/AuthModal";
 import styles from "../styles/Navbar.module.css";
+import { searchService } from "../services/search.service";
+import { debounce } from "lodash";
 import { CategoriesService } from "../services/categories.service";
+
 function Navbar() {
   const navigate = useNavigate();
   const { totalItems } = useContext(CartContext);
@@ -31,11 +40,18 @@ function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef(null);
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -45,7 +61,50 @@ function Navbar() {
     };
     fetchCategories();
   }, []);
+  // Create your own debounce function at the top of your file
+  // function debounce(func, delay) {
+  //   let timeoutId;
+  //   return function(...args) {
+  //     clearTimeout(timeoutId);
+  //     timeoutId = setTimeout(() => func.apply(this, args), delay);
+  //   };
+  // }
 
+  const debouncedSearch = useCallback(
+    debounce(async (query) => {
+      if (query.length > 1) {
+        const results = await searchService.getSearchSuggestions(query);
+        setSuggestions(results);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300),
+    [],
+  );
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    debouncedSearch(query);
+  };
+
+  // Handle search submit
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setShowSuggestions(false);
+      setSearchQuery("");
+    }
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (productId, productName) => {
+    navigate(`/product/${productId}`);
+    setShowSuggestions(false);
+    setSearchQuery("");
+  };
   const handleLogout = () => {
     logout();
     setSidebarOpen(false);
@@ -57,18 +116,77 @@ function Navbar() {
     else setCartOpen(true);
   };
 
+  const getProductImageUrl = (productId) => {
+    const imagePath = `/src/assets/products/${productId}-1.jpeg`;
+    try {
+      const url = new URL(imagePath, import.meta.url).href;
+      return url;
+    } catch {
+      return "https://via.placeholder.com/40x40?text=No+Image";
+    }
+  };
   return (
     <div className={styles.navbar}>
       {!isMobile && (
         <>
           <div className={styles.desktopTop}>
-            <div className={styles.searchWrapper}>
-              <input
-                type="text"
-                placeholder="Search products..."
-                className={styles.searchInput}
-              />
-              <FaSearch className={styles.searchIcon} />
+            <div className={styles.searchWrapper} ref={searchRef}>
+              <form
+                onSubmit={handleSearchSubmit}
+                style={{ position: "relative", width: "100%" }}
+              >
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className={styles.searchInput}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={() =>
+                    searchQuery.length > 1 && setShowSuggestions(true)
+                  }
+                />
+                <FaSearch
+                  className={styles.searchIcon}
+                  onClick={handleSearchSubmit}
+                />
+
+                {showSuggestions && suggestions.length > 0 && (
+                  <div className={styles.suggestionsDropdown}>
+                    {suggestions.map((product) => (
+                      <div
+                        key={product.product_id}
+                        className={styles.suggestionItem}
+                        onClick={() =>
+                          handleSuggestionClick(
+                            product.product_id,
+                            product.name,
+                          )
+                        }
+                      >
+                        <img
+                          src={getProductImageUrl(product.product_id)}
+                          alt={product.name}
+                          width="40"
+                          height="40"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src =
+                              "https://via.placeholder.com/40x40?text=No+Image";
+                          }}
+                        />
+                        <div>
+                          <div className={styles.suggestionName}>
+                            {product.name}
+                          </div>
+                          <div className={styles.suggestionPrice}>
+                            ${product.price}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </form>
             </div>
             <div className={styles.iconGroup}>
               <FaUser
@@ -201,3 +319,14 @@ function Navbar() {
 }
 
 export default Navbar;
+
+// Add these imports
+// or implement your own debounce
+
+// Add this state in your Navbar component
+
+// Add debounced search function
+
+// Handle search input change
+
+// Close suggestions when clicking outside

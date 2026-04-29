@@ -14,6 +14,7 @@ import {
   InputAdornment,
 } from "@mui/material";
 import AddCardIcon from "@mui/icons-material/CreditCard";
+import StripeIcon from "@mui/icons-material/Payment"; // Add this
 
 export default function CheckoutPayment({
   paymentMethod,
@@ -42,6 +43,17 @@ export default function CheckoutPayment({
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
+                <FormControlLabel
+                  value="stripe"
+                  control={<Radio />}
+                  label={
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <StripeIcon />
+                      Credit Card (Secure Stripe) ⚡
+                    </Box>
+                  }
+                />
+
                 <FormControlLabel
                   value="paypal"
                   control={<Radio />}
@@ -101,19 +113,17 @@ export default function CheckoutPayment({
                     </Box>
                   }
                 />
-
                 <FormControlLabel
                   value="card"
                   control={<Radio />}
                   label={
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      <AddCardIcon /> Credit / Debit Card
+                      <AddCardIcon /> Manual Card Entry (Legacy)
                     </Box>
                   }
                 />
               </RadioGroup>
             </FormControl>
-
             {paymentMethod === "card" && (
               <Paper sx={{ p: 2, mt: 2 }} variant="outlined">
                 <Grid container spacing={1}>

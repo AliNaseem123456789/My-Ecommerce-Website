@@ -18,13 +18,22 @@ export default function Account() {
   const [loadingOrders, setLoadingOrders] = useState(false);
 
   const loadOrders = async () => {
-    if (!user) return;
+    // ✅ Check if user exists and has an id
+    if (!user?.id) {
+      console.log("No user ID available, skipping order fetch");
+      return;
+    }
+
     setLoadingOrders(true);
     try {
-      const data = await orderService.getUserOrders();
+      console.log("Fetching orders for user ID:", user.id); // Debug log
+      // ✅ Pass the user ID to the service
+      const data = await orderService.getUserOrders(user.id);
+      console.log("Orders received:", data); // Debug log
       setOrders(data || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setOrders([]);
     } finally {
       setLoadingOrders(false);
     }
@@ -35,7 +44,7 @@ export default function Account() {
     if (activeTab.toLowerCase().trim() === "orders") {
       loadOrders();
     }
-  }, [activeTab]);
+  }, [activeTab, user]); // ✅ Add user to dependencies
 
   const renderTab = () => {
     const key = activeTab.toLowerCase().trim();

@@ -5,18 +5,32 @@ export default function OrdersTab({ orders, loading, loadOrders }) {
     loadOrders();
   }, []);
 
+  if (loading) {
+    return <p>Loading orders...</p>;
+  }
+
+  if (!orders || orders.length === 0) {
+    return (
+      <div>
+        <h2
+          style={{ marginBottom: "25px", fontSize: "26px", fontWeight: "700" }}
+        >
+          Your Orders
+        </h2>
+        <p>You haven't placed any orders yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 style={{ marginBottom: "25px", fontSize: "26px", fontWeight: "700" }}>
         Your Orders
       </h2>
 
-      {loading ? (
-        <p>Loading orders...</p>
-      ) : orders.length === 0 ? (
-        <p>You haven't placed any orders yet.</p>
-      ) : (
-        orders.map((order) => (
+      {orders.map((order) => {
+        const address = order.shipping_address?.[0] || {};
+        return (
           <div
             key={order.order_id}
             style={{
@@ -28,32 +42,105 @@ export default function OrdersTab({ orders, loading, loadOrders }) {
               boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
             }}
           >
-            <h3>Order #{order.order_id}</h3>
-            <p>Total: ${order.total}</p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "start",
+              }}
+            >
+              <div>
+                <h3 style={{ margin: "0 0 5px 0" }}>
+                  Order #{order.order_id?.slice(0, 8)}
+                </h3>
+                <p style={{ color: "#666", margin: "0 0 10px 0" }}>
+                  {new Date(order.created_at).toLocaleDateString()}
+                </p>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <p
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                    margin: "0",
+                    color: "#e60023",
+                  }}
+                >
+                  ${order.total?.toFixed(2)}
+                </p>
+              </div>
+            </div>
 
-            <h4 style={{ marginTop: "20px" }}>Items</h4>
-            {order.order_items.map((item, i) => (
-              <p key={i}>
-                {item.products?.name} — {item.quantity} × ${item.price}
-              </p>
-            ))}
-
-            <h4 style={{ marginTop: "20px" }}>Shipping Address</h4>
-            {order.shipping_address ? (
-              <p>
-                {order.shipping_address.first_name}{" "}
-                {order.shipping_address.last_name},<br />
-                {order.shipping_address.street},<br />
-                {order.shipping_address.city},{" "}
-                {order.shipping_address.state},{" "}
-                {order.shipping_address.postal_code}
-              </p>
+            <h4 style={{ marginTop: "20px", marginBottom: "10px" }}>Items</h4>
+            {order.order_items && order.order_items.length > 0 ? (
+              order.order_items.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "8px 0",
+                    borderBottom:
+                      i < order.order_items.length - 1
+                        ? "1px solid #eee"
+                        : "none",
+                  }}
+                >
+                  <span>
+                    {item.products?.name || `Product #${item.product_id}`} ×{" "}
+                    {item.quantity}
+                  </span>
+                  <span style={{ fontWeight: "bold" }}>
+                    ${(item.price * item.quantity).toFixed(2)}
+                  </span>
+                </div>
+              ))
             ) : (
-              <p>No address available.</p>
+              <p>No items found</p>
+            )}
+
+            <h4 style={{ marginTop: "20px", marginBottom: "10px" }}>
+              Shipping Address
+            </h4>
+            {address?.street ? (
+              <div
+                style={{
+                  background: "#f9fafb",
+                  padding: "15px",
+                  borderRadius: "8px",
+                  lineHeight: "1.5",
+                }}
+              >
+                <p style={{ margin: "0" }}>
+                  <strong>
+                    {address.first_name} {address.last_name}
+                  </strong>
+                  <br />
+                  {address.street}
+                  <br />
+                  {address.apartment && (
+                    <>
+                      {address.apartment}
+                      <br />
+                    </>
+                  )}
+                  {address.city}, {address.state} {address.postal_code}
+                  <br />
+                  {address.email && (
+                    <>
+                      Email: {address.email}
+                      <br />
+                    </>
+                  )}
+                  {address.phone && <>Phone: {address.phone}</>}
+                </p>
+              </div>
+            ) : (
+              <p style={{ color: "#999" }}>No shipping address available</p>
             )}
           </div>
-        ))
-      )}
+        );
+      })}
     </div>
   );
 }

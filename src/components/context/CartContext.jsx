@@ -73,6 +73,25 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const clearCart = async () => {
+    if (!userId) return;
+
+    try {
+      await apiClient.delete(`/cart/clear/${userId}`);
+      setCartItems([]);
+      console.log("Cart cleared successfully");
+    } catch (err) {
+      console.error("Clear cart error:", err);
+      for (const item of cartItems) {
+        try {
+          await apiClient.delete(`/cart/${item.cart_item_id}`);
+        } catch (e) {
+          console.error(`Failed to delete item ${item.cart_item_id}:`, e);
+        }
+      }
+      setCartItems([]);
+    }
+  };
   const mergeCart = async (guestId, realUserId) => {
     try {
       await apiClient.post("/cart/merge", { guestId, userId: realUserId });
@@ -89,6 +108,7 @@ export const CartProvider = ({ children }) => {
         addToCart,
         updateQuantity,
         removeFromCart,
+        clearCart,
         userId,
         totalItems: cartItems.reduce((sum, item) => sum + item.quantity, 0),
         mergeCart,
