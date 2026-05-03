@@ -6,7 +6,7 @@ const apiClient = axios.create({
   // baseURL:
   // "https://ecommerce-website-backend-production-70d5.up.railway.app/api/v1",
 
-  timeout: 10000,
+  timeout: 60000,
   headers: {
     "Content-Type": "application/json",
   },
