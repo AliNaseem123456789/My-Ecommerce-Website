@@ -147,7 +147,7 @@ const QuickSuggestionButton = styled(Button)(({ theme }) => ({
 
 const FloatingChat = ({
   botId = "ecommerce",
-  apiUrl = "https://chatbot-gateway.onrender.com",
+  apiUrl = "https://chatbot-gateway-production-208c.up.railway.app",
   title = "Shop Assistant",
   welcomeMessage = "Hello! How can I help you with your shopping today?\n\nI can help you with:\n- Product questions\n- Voice commands\n- Product images\n- PDF documents",
   primaryColor = "#1976d2",
