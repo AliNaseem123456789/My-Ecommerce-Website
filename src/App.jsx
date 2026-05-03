@@ -30,18 +30,10 @@ import FloatingChat from "./components/FloatingChat";
 function AppWrapper() {
   const { isSidebarOpen, closeSidebar } = useContext(CartContext);
   const location = useLocation();
-
-  // Do not show sidebar on the main cart page
   const showSidebar = isSidebarOpen && location.pathname !== "/cart";
-
-  // Get userId from localStorage or your auth context
   const userId = localStorage.getItem("userId") || null;
-
-  // Different bot configurations based on route
   const getBotConfig = () => {
     const path = location.pathname;
-
-    // Product/shop pages - use ecommerce bot
     if (
       path === "/shop" ||
       path.startsWith("/product") ||
@@ -57,8 +49,6 @@ function AppWrapper() {
           "Hello! Need help with your purchase? I can help you find products, check prices, and track orders! 🛒",
       };
     }
-
-    // Account pages - use ecommerce bot with account focus
     if (path === "/account" || path === "/track-order") {
       return {
         botId: "ecommerce",
@@ -68,19 +58,16 @@ function AppWrapper() {
           "Hi there! Need help with your account, orders, or returns? I'm here to help! 👤",
       };
     }
-
-    // FAQ/Help pages
     if (path === "/faq" || path === "/contact-us") {
       return {
         botId: "ecommerce",
         title: "Help Center",
         primaryColor: "#3B82F6",
         welcomeMessage:
-          "Welcome to the Help Center! How can I assist you today? 📚",
+          "Welcome to the Help Center! How can I assist you today? ",
       };
     }
 
-    // Default for all other pages (home, about, etc.)
     return {
       botId: "ecommerce",
       title: "Need Help?",
@@ -93,11 +80,8 @@ function AppWrapper() {
 
   return (
     <>
-      {/* Conditional Navbar */}
       {location.pathname !== "/" &&
         !location.pathname.startsWith("/products") && <Navbar />}
-
-      {/* Conditional Breadcrumbs */}
       {location.pathname !== "/" &&
         location.pathname !== "/home" &&
         location.pathname !== "/Home" &&
@@ -111,7 +95,6 @@ function AppWrapper() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/search" element={<MobileSearch />} />
-        {/* Footer-related routes */}
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions" element={<TermsConditions />} />
@@ -138,15 +121,12 @@ function AppWrapper() {
         />
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
-
-      {/* Cart Sidebar */}
       {showSidebar && <CartSidebar onClose={closeSidebar} />}
-
-      {/* Footer */}
       <Footer />
       <FloatingChat
         botId={botConfig.botId}
-        apiUrl="https://chatbot-gateway.onrender.com"
+        // apiUrl="http://localhost:8000"
+        // apiUrl="https://chatbot-gateway.onrender.com"
         title={botConfig.title}
         welcomeMessage={botConfig.welcomeMessage}
         primaryColor={botConfig.primaryColor}

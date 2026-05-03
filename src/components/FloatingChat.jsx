@@ -1,328 +1,185 @@
 // components/FloatingChat.jsx
 import React, { useState, useRef, useEffect } from "react";
+import {
+  Box,
+  Paper,
+  TextField,
+  IconButton,
+  Avatar,
+  Typography,
+  Fab,
+  Badge,
+  CircularProgress,
+  Button,
+  Menu,
+  MenuItem,
+  ListItemAvatar,
+  ListItemText,
+  Alert,
+  Snackbar,
+  Zoom,
+} from "@mui/material";
+import { styled, keyframes } from "@mui/material/styles";
+import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
+import ImageIcon from "@mui/icons-material/Image";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import ChatIcon from "@mui/icons-material/Chat";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+
+const pulseAnimation = keyframes`
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.7; }
+`;
+
+const slideInAnimation = keyframes`
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+`;
+
+const FloatingButton = styled(Fab)(({ theme }) => ({
+  position: "fixed",
+  bottom: 24,
+  right: 24,
+  backgroundColor: theme.palette.primary.main,
+  color: "white",
+  "&:hover": {
+    backgroundColor: theme.palette.primary.dark,
+    transform: "scale(1.1)",
+  },
+  transition: "transform 0.2s ease",
+  zIndex: 1000,
+}));
+
+const ChatWindow = styled(Paper)(({ theme }) => ({
+  position: "fixed",
+  bottom: 24,
+  right: 24,
+  width: 420,
+  height: 600,
+  display: "flex",
+  flexDirection: "column",
+  borderRadius: 16,
+  overflow: "hidden",
+  boxShadow: theme.shadows[10],
+  zIndex: 1000,
+  animation: `${slideInAnimation} 0.3s ease`,
+  [theme.breakpoints.down("sm")]: {
+    width: "100vw",
+    height: "100vh",
+    bottom: 0,
+    right: 0,
+    borderRadius: 0,
+  },
+}));
+
+const ChatHeader = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.main,
+  color: "white",
+  padding: theme.spacing(2),
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+}));
+
+const MessagesContainer = styled(Box)(({ theme }) => ({
+  flex: 1,
+  overflowY: "auto",
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.grey[50],
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(1.5),
+}));
+
+const MessageBubble = styled(Paper)(({ theme, isuser }) => ({
+  padding: theme.spacing(1.5),
+  maxWidth: "80%",
+  width: "fit-content",
+  borderRadius: isuser === "true" ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
+  backgroundColor: isuser === "true" ? theme.palette.primary.main : "white",
+  color: isuser === "true" ? "white" : theme.palette.text.primary,
+  animation: `${slideInAnimation} 0.2s ease`,
+  boxShadow: theme.shadows[1],
+}));
+
+const InputWrapper = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(2),
+  borderTop: `1px solid ${theme.palette.divider}`,
+  backgroundColor: "white",
+  display: "flex",
+  gap: theme.spacing(1),
+  alignItems: "flex-end",
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  flex: 1,
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 24,
+  },
+}));
+
+const RecordingIndicator = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1),
+  padding: theme.spacing(1),
+  backgroundColor: theme.palette.error.light,
+  borderRadius: 8,
+  marginBottom: theme.spacing(1),
+  animation: `${pulseAnimation} 1s infinite`,
+}));
+
+const QuickSuggestionButton = styled(Button)(({ theme }) => ({
+  borderRadius: 20,
+  textTransform: "none",
+  fontSize: "0.75rem",
+  padding: "4px 12px",
+  backgroundColor: theme.palette.grey[100],
+  color: theme.palette.text.secondary,
+  "&:hover": {
+    backgroundColor: theme.palette.grey[200],
+  },
+}));
 
 const FloatingChat = ({
   botId = "ecommerce",
-  // apiUrl = "http://localhost:8000",
   apiUrl = "https://chatbot-gateway.onrender.com",
   title = "Shop Assistant",
-  welcomeMessage = "Hello! How can I help you with your shopping today? 🛒",
-  primaryColor = "#3B82F6",
+  welcomeMessage = "Hello! How can I help you with your shopping today?\n\nI can help you with:\n- Product questions\n- Voice commands\n- Product images\n- PDF documents",
+  primaryColor = "#1976d2",
   userId = null,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: welcomeMessage, timestamp: new Date() },
+    {
+      role: "assistant",
+      content: welcomeMessage,
+      timestamp: new Date(),
+      type: "text",
+    },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "info",
+  });
+  const [uploadProgress, setUploadProgress] = useState({
+    show: false,
+    type: "",
+    fileName: "",
+  });
+
   const messagesEndRef = useRef(null);
-
-  // Responsive styles
-  const styles = {
-    container: {
-      position: "fixed",
-      bottom: "16px",
-      right: "16px",
-      zIndex: 9999,
-      "@media (min-width: 768px)": {
-        bottom: "24px",
-        right: "24px",
-      },
-    },
-    floatingButton: {
-      width: "56px",
-      height: "56px",
-      borderRadius: "50%",
-      backgroundColor: primaryColor,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      boxShadow:
-        "0 10px 25px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)",
-      transition: "transform 0.2s ease",
-      border: "none",
-      color: "white",
-      "@media (max-width: 640px)": {
-        width: "48px",
-        height: "48px",
-      },
-    },
-    chatWindow: {
-      width: "400px",
-      height: "550px",
-      backgroundColor: "white",
-      borderRadius: "16px",
-      boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
-      display: "flex",
-      flexDirection: "column",
-      overflow: "hidden",
-      "@media (max-width: 640px)": {
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: "100%",
-        height: "100%",
-        borderRadius: 0,
-      },
-      "@media (min-width: 641px) and (max-width: 768px)": {
-        width: "380px",
-        height: "520px",
-      },
-    },
-    header: {
-      backgroundColor: primaryColor,
-      padding: "12px 16px",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      color: "white",
-      "@media (max-width: 640px)": {
-        padding: "16px",
-      },
-    },
-    headerLeft: {
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    },
-    headerIcon: {
-      width: "32px",
-      height: "32px",
-      borderRadius: "50%",
-      backgroundColor: "rgba(255,255,255,0.2)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    headerTitle: {
-      fontWeight: "600",
-      fontSize: "16px",
-    },
-    headerStatus: {
-      fontSize: "12px",
-      opacity: 0.9,
-    },
-    closeButton: {
-      cursor: "pointer",
-      padding: "4px",
-      borderRadius: "50%",
-      background: "transparent",
-      border: "none",
-      color: "white",
-      "@media (max-width: 640px)": {
-        padding: "8px",
-      },
-    },
-    messagesContainer: {
-      flex: 1,
-      overflowY: "auto",
-      padding: "16px",
-      backgroundColor: "#f9fafb",
-      display: "flex",
-      flexDirection: "column",
-      gap: "12px",
-      "@media (max-width: 640px)": {
-        padding: "12px",
-      },
-    },
-    userMessage: {
-      display: "flex",
-      justifyContent: "flex-end",
-    },
-    assistantMessage: {
-      display: "flex",
-      justifyContent: "flex-start",
-    },
-    userBubble: {
-      backgroundColor: primaryColor,
-      color: "white",
-      padding: "8px 16px",
-      borderRadius: "16px",
-      maxWidth: "80%",
-      "@media (max-width: 640px)": {
-        maxWidth: "85%",
-        padding: "10px 14px",
-      },
-    },
-    assistantBubble: {
-      backgroundColor: "white",
-      color: "#1f2937",
-      padding: "8px 16px",
-      borderRadius: "16px",
-      maxWidth: "80%",
-      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
-      "@media (max-width: 640px)": {
-        maxWidth: "85%",
-        padding: "10px 14px",
-      },
-    },
-    errorBubble: {
-      backgroundColor: "#fee2e2",
-      color: "#991b1b",
-      padding: "8px 16px",
-      borderRadius: "16px",
-      maxWidth: "80%",
-      "@media (max-width: 640px)": {
-        maxWidth: "85%",
-        padding: "10px 14px",
-      },
-    },
-    timestamp: {
-      fontSize: "10px",
-      color: "#9ca3af",
-      marginTop: "4px",
-    },
-    userTimestamp: {
-      textAlign: "right",
-    },
-    assistantTimestamp: {
-      textAlign: "left",
-    },
-    typingIndicator: {
-      backgroundColor: "white",
-      padding: "8px 16px",
-      borderRadius: "16px",
-      display: "inline-flex",
-      gap: "4px",
-      boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
-    },
-    typingDot: {
-      width: "8px",
-      height: "8px",
-      borderRadius: "50%",
-      backgroundColor: "#9ca3af",
-      animation: "bounce 1.4s infinite ease-in-out",
-    },
-    quickSuggestions: {
-      borderTop: "1px solid #e5e7eb",
-      backgroundColor: "white",
-      padding: "8px 16px",
-      "@media (max-width: 640px)": {
-        padding: "10px 12px",
-      },
-    },
-    suggestionsWrapper: {
-      display: "flex",
-      gap: "8px",
-      overflowX: "auto",
-      paddingBottom: "8px",
-      WebkitOverflowScrolling: "touch",
-      scrollbarWidth: "thin",
-    },
-    suggestionButton: {
-      whiteSpace: "nowrap",
-      padding: "4px 12px",
-      borderRadius: "9999px",
-      border: "1px solid #e5e7eb",
-      backgroundColor: "white",
-      fontSize: "12px",
-      color: "#4b5563",
-      cursor: "pointer",
-      transition: "background-color 0.2s ease",
-      "@media (max-width: 640px)": {
-        padding: "6px 14px",
-        fontSize: "13px",
-      },
-    },
-    inputArea: {
-      borderTop: "1px solid #e5e7eb",
-      backgroundColor: "white",
-      padding: "16px",
-      "@media (max-width: 640px)": {
-        padding: "12px",
-      },
-    },
-    inputWrapper: {
-      display: "flex",
-      gap: "8px",
-    },
-    textarea: {
-      flex: 1,
-      padding: "8px 12px",
-      border: "1px solid #d1d5db",
-      borderRadius: "12px",
-      fontSize: "14px",
-      resize: "none",
-      fontFamily: "inherit",
-      "@media (max-width: 640px)": {
-        fontSize: "16px", // Prevents zoom on iOS
-        padding: "10px 12px",
-      },
-    },
-    sendButton: {
-      padding: "8px 16px",
-      backgroundColor: primaryColor,
-      border: "none",
-      borderRadius: "12px",
-      color: "white",
-      cursor: "pointer",
-      transition: "opacity 0.2s ease",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      "@media (max-width: 640px)": {
-        padding: "8px 20px",
-      },
-    },
-    footerText: {
-      textAlign: "center",
-      fontSize: "10px",
-      color: "#9ca3af",
-      marginTop: "8px",
-      "@media (max-width: 640px)": {
-        fontSize: "9px",
-      },
-    },
-    badge: {
-      position: "absolute",
-      top: "-4px",
-      right: "-4px",
-      width: "20px",
-      height: "20px",
-      borderRadius: "50%",
-      backgroundColor: "#ef4444",
-      color: "white",
-      fontSize: "10px",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-  };
-
-  // Add keyframe animation to document
-  useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.textContent = `
-      @keyframes bounce {
-        0%, 60%, 100% { transform: translateY(0); }
-        30% { transform: translateY(-10px); }
-      }
-      
-      /* Mobile optimizations */
-      @media (max-width: 640px) {
-        .floating-chat-container {
-          touch-action: pan-y pinch-zoom;
-        }
-      }
-    `;
-    document.head.appendChild(styleSheet);
-
-    // Prevent body scroll when chat is open on mobile
-    if (isOpen && window.innerWidth <= 640) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     scrollToBottom();
@@ -341,16 +198,256 @@ const FloatingChat = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const sendMessage = async () => {
+  const showSnackbar = (message, severity = "error") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const startBrowserSpeech = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      showSnackbar(
+        "Your browser doesn't support voice input. Please type your message.",
+        "warning",
+      );
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setInput(transcript);
+      setIsRecording(false);
+      setTimeout(() => {
+        if (transcript.trim()) {
+          sendTextMessage();
+        }
+      }, 100);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech error:", event.error);
+      let errorMsg = "Could not recognize speech. ";
+      if (event.error === "not-allowed") {
+        errorMsg += "Please allow microphone access.";
+      } else if (event.error === "no-speech") {
+        errorMsg += "No speech detected. Please try again.";
+      } else {
+        errorMsg += "Please try again.";
+      }
+      showSnackbar(errorMsg, "warning");
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
+  };
+
+  const handleAttachClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleAttachClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleFileSelect = (type) => {
+    fileInputRef.current.click();
+    handleAttachClose();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.type.startsWith("image/")) {
+      await sendImageMessage(file);
+    } else if (file.type === "application/pdf") {
+      await sendPDFMessage(file);
+    } else {
+      showSnackbar(
+        "Unsupported file type. Please upload an image or PDF.",
+        "warning",
+      );
+    }
+
+    event.target.value = null;
+  };
+
+  const sendImageMessage = async (imageFile) => {
+    setUploadProgress({
+      show: true,
+      type: "image",
+      fileName: imageFile.name,
+    });
+
+    const userMessage = {
+      role: "user",
+      content: "Processing your image...",
+      timestamp: new Date(),
+      type: "image",
+      isProcessing: true,
+      imagePreview: URL.createObjectURL(imageFile),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      formData.append("message", input || "What product is this?");
+      formData.append(
+        "user_id",
+        userId || localStorage.getItem("userId") || "anonymous",
+      );
+
+      const response = await fetch(`${apiUrl}/api/chat/${botId}/image`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      const imageUrl = URL.createObjectURL(imageFile);
+
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        const lastIndex = newMessages.length - 1;
+        if (newMessages[lastIndex].isProcessing) {
+          newMessages[lastIndex] = {
+            role: "user",
+            content: "Image uploaded",
+            imageUrl: imageUrl,
+            imagePreview: imageUrl,
+            analysis: data.image_analysis,
+            timestamp: new Date(),
+            type: "image",
+            isProcessing: false,
+          };
+        }
+        return newMessages;
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.response,
+          timestamp: new Date(),
+          type: "text",
+        },
+      ]);
+
+      setInput("");
+    } catch (error) {
+      console.error("Image message error:", error);
+      showSnackbar("Failed to process image. Please try again.", "error");
+      setMessages((prev) => prev.filter((msg) => !msg.isProcessing));
+    } finally {
+      setIsLoading(false);
+      setUploadProgress({ show: false, type: "", fileName: "" });
+    }
+  };
+
+  const sendPDFMessage = async (pdfFile) => {
+    setUploadProgress({
+      show: true,
+      type: "pdf",
+      fileName: pdfFile.name,
+    });
+
+    const userMessage = {
+      role: "user",
+      content: `Processing PDF: ${pdfFile.name}`,
+      timestamp: new Date(),
+      type: "pdf",
+      isProcessing: true,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("pdf", pdfFile);
+      formData.append(
+        "message",
+        input || "What information is in this document?",
+      );
+      formData.append(
+        "user_id",
+        userId || localStorage.getItem("userId") || "anonymous",
+      );
+
+      const response = await fetch(`${apiUrl}/api/chat/${botId}/pdf`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      setMessages((prev) => {
+        const newMessages = [...prev];
+        const lastIndex = newMessages.length - 1;
+        if (newMessages[lastIndex].isProcessing) {
+          newMessages[lastIndex] = {
+            role: "user",
+            content: `${pdfFile.name}`,
+            pdfSummary: data.pdf_summary,
+            pageCount: data.page_count,
+            timestamp: new Date(),
+            type: "pdf",
+            isProcessing: false,
+          };
+        }
+        return newMessages;
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.response,
+          timestamp: new Date(),
+          type: "text",
+        },
+      ]);
+
+      setInput("");
+    } catch (error) {
+      console.error("PDF message error:", error);
+      showSnackbar("Failed to process PDF. Please try again.", "error");
+      setMessages((prev) => prev.filter((msg) => !msg.isProcessing));
+    } finally {
+      setIsLoading(false);
+      setUploadProgress({ show: false, type: "", fileName: "" });
+    }
+  };
+
+  const sendTextMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = {
       role: "user",
       content: input,
       timestamp: new Date(),
+      type: "text",
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsLoading(true);
 
@@ -359,7 +456,7 @@ const FloatingChat = ({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: input,
+          message: currentInput,
           user_id: userId || localStorage.getItem("userId") || "anonymous",
           conversation_history: messages.map((m) => ({
             role: m.role,
@@ -376,6 +473,7 @@ const FloatingChat = ({
           role: "assistant",
           content: data.response,
           timestamp: new Date(),
+          type: "text",
         },
       ]);
 
@@ -384,25 +482,12 @@ const FloatingChat = ({
       }
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            "Sorry, I'm having trouble connecting. Please try again or contact support.",
-          timestamp: new Date(),
-          isError: true,
-        },
-      ]);
+      showSnackbar(
+        "Sorry, I'm having trouble connecting. Please try again.",
+        "error",
+      );
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
     }
   };
 
@@ -413,238 +498,371 @@ const FloatingChat = ({
     });
   };
 
-  // Apply responsive styles with media query support
-  const getResponsiveStyle = (baseStyle) => {
-    const style = { ...baseStyle };
-    // Remove media query objects as they can't be applied inline
-    delete style["@media (max-width: 640px)"];
-    delete style["@media (min-width: 641px) and (max-width: 768px)"];
-    delete style["@media (min-width: 768px)"];
-    return style;
-  };
-
   return (
-    <div
-      style={getResponsiveStyle(styles.container)}
-      className="floating-chat-container"
-    >
-      {!isOpen && (
-        <button
-          onClick={() => {
-            setIsOpen(true);
-            setUnreadCount(0);
-          }}
-          style={getResponsiveStyle(styles.floatingButton)}
-          onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
-          onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
+    <>
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        accept="image/*,application/pdf"
+        onChange={handleFileChange}
+      />
+
+      {!isOpen ? (
+        <Zoom in={!isOpen}>
+          <FloatingButton
+            color="primary"
+            onClick={() => {
+              setIsOpen(true);
+              setUnreadCount(0);
+            }}
           >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          {unreadCount > 0 && (
-            <span style={getResponsiveStyle(styles.badge)}>{unreadCount}</span>
-          )}
-        </button>
-      )}
-
-      {isOpen && (
-        <div style={getResponsiveStyle(styles.chatWindow)}>
-          {/* Header */}
-          <div style={getResponsiveStyle(styles.header)}>
-            <div style={getResponsiveStyle(styles.headerLeft)}>
-              <div style={getResponsiveStyle(styles.headerIcon)}>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-                </svg>
-              </div>
-              <div>
-                <div style={getResponsiveStyle(styles.headerTitle)}>
-                  {title}
-                </div>
-                <div style={getResponsiveStyle(styles.headerStatus)}>
-                  Online • Usually replies instantly
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              style={getResponsiveStyle(styles.closeButton)}
+            <Badge
+              badgeContent={unreadCount}
+              color="error"
+              sx={{ "& .MuiBadge-badge": { right: -4, top: -4 } }}
             >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+              <ChatIcon />
+            </Badge>
+          </FloatingButton>
+        </Zoom>
+      ) : (
+        <ChatWindow elevation={3}>
+          <ChatHeader>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Avatar
+                sx={{ bgcolor: "rgba(255,255,255,0.2)", width: 32, height: 32 }}
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
+                <SmartToyIcon sx={{ fontSize: 20 }} />
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                  {title}
+                </Typography>
+                <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                  Online • Multimodal AI
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={() => setIsOpen(false)}
+              sx={{ color: "white" }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </ChatHeader>
 
-          {/* Messages */}
-          <div style={getResponsiveStyle(styles.messagesContainer)}>
+          <MessagesContainer>
+            {uploadProgress.show && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  padding: 2,
+                  backgroundColor: "white",
+                  borderRadius: 2,
+                  boxShadow: 1,
+                  marginBottom: 1,
+                }}
+              >
+                <CircularProgress size={24} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="body2" fontWeight="bold">
+                    {uploadProgress.type === "image"
+                      ? "Uploading Image..."
+                      : "Uploading PDF..."}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {uploadProgress.fileName}
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="primary">
+                  Processing...
+                </Typography>
+              </Box>
+            )}
+
             {messages.map((message, idx) => (
-              <div key={idx}>
-                <div
-                  style={
-                    message.role === "user"
-                      ? getResponsiveStyle(styles.userMessage)
-                      : getResponsiveStyle(styles.assistantMessage)
-                  }
-                >
-                  <div
-                    style={
-                      message.isError
-                        ? getResponsiveStyle(styles.errorBubble)
-                        : message.role === "user"
-                          ? getResponsiveStyle(styles.userBubble)
-                          : getResponsiveStyle(styles.assistantBubble)
-                    }
+              <Box
+                key={idx}
+                sx={{
+                  display: "flex",
+                  justifyContent:
+                    message.role === "user" ? "flex-end" : "flex-start",
+                }}
+              >
+                <Box sx={{ maxWidth: "80%" }}>
+                  <MessageBubble
+                    isuser={(message.role === "user").toString()}
+                    elevation={0}
                   >
-                    <p
-                      style={{
-                        margin: 0,
-                        fontSize: "14px",
-                        whiteSpace: "pre-wrap",
-                      }}
-                    >
-                      {message.content}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  style={
-                    message.role === "user"
-                      ? getResponsiveStyle(styles.userTimestamp)
-                      : getResponsiveStyle(styles.assistantTimestamp)
-                  }
-                >
-                  <span style={getResponsiveStyle(styles.timestamp)}>
+                    {(message.type === "image" || message.imagePreview) && (
+                      <Box sx={{ mb: 1 }}>
+                        <img
+                          src={message.imageUrl || message.imagePreview}
+                          alt="Uploaded"
+                          style={{
+                            maxWidth: "100%",
+                            borderRadius: 8,
+                            maxHeight: 150,
+                          }}
+                        />
+                        {message.isProcessing && (
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                              mt: 1,
+                            }}
+                          >
+                            <CircularProgress size={16} />
+                            <Typography variant="caption" sx={{ opacity: 0.8 }}>
+                              Analyzing image...
+                            </Typography>
+                          </Box>
+                        )}
+                        {message.analysis && !message.isProcessing && (
+                          <Typography
+                            variant="caption"
+                            sx={{ display: "block", mt: 1, opacity: 0.8 }}
+                          >
+                            {message.analysis.substring(0, 150)}...
+                          </Typography>
+                        )}
+                      </Box>
+                    )}
+
+                    {message.type === "pdf" && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <PictureAsPdfIcon color="error" />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="body2">
+                            {message.content}
+                          </Typography>
+                          {message.pageCount && (
+                            <Typography variant="caption" sx={{ opacity: 0.7 }}>
+                              {message.pageCount} pages
+                            </Typography>
+                          )}
+                        </Box>
+                        {message.isProcessing && <CircularProgress size={16} />}
+                      </Box>
+                    )}
+
+                    {message.type === "voice" && !message.isProcessing && (
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <MicIcon fontSize="small" />
+                        <Typography variant="body2">
+                          {message.content}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {message.type === "text" && (
+                      <Typography
+                        variant="body2"
+                        sx={{ whiteSpace: "pre-wrap" }}
+                      >
+                        {message.content}
+                      </Typography>
+                    )}
+
+                    {message.isProcessing && message.type !== "image" && (
+                      <CircularProgress size={20} />
+                    )}
+                  </MessageBubble>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      mt: 0.5,
+                      textAlign: message.role === "user" ? "right" : "left",
+                      color: "text.secondary",
+                    }}
+                  >
                     {formatTime(message.timestamp)}
-                  </span>
-                </div>
-              </div>
+                  </Typography>
+                </Box>
+              </Box>
             ))}
 
-            {isLoading && (
-              <div style={getResponsiveStyle(styles.assistantMessage)}>
-                <div style={getResponsiveStyle(styles.typingIndicator)}>
-                  <div
-                    style={{
-                      ...getResponsiveStyle(styles.typingDot),
-                      animationDelay: "0s",
-                    }}
-                  ></div>
-                  <div
-                    style={{
-                      ...getResponsiveStyle(styles.typingDot),
-                      animationDelay: "0.2s",
-                    }}
-                  ></div>
-                  <div
-                    style={{
-                      ...getResponsiveStyle(styles.typingDot),
-                      animationDelay: "0.4s",
-                    }}
-                  ></div>
-                </div>
-              </div>
+            {isLoading && !messages.some((m) => m.isProcessing) && (
+              <Box sx={{ display: "flex", justifyContent: "flex-start" }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    padding: 2,
+                    borderRadius: "4px 18px 18px 18px",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Box sx={{ display: "flex", gap: 0.5 }}>
+                    <CircularProgress size={12} />
+                    <CircularProgress
+                      size={12}
+                      sx={{ animationDelay: "0.2s" }}
+                    />
+                    <CircularProgress
+                      size={12}
+                      sx={{ animationDelay: "0.4s" }}
+                    />
+                  </Box>
+                </Paper>
+              </Box>
             )}
+
+            {isRecording && (
+              <RecordingIndicator>
+                <Box
+                  sx={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    backgroundColor: "error.main",
+                    animation: `${pulseAnimation} 1s infinite`,
+                  }}
+                />
+                <Typography variant="body2" color="error">
+                  Listening... Speak now
+                </Typography>
+              </RecordingIndicator>
+            )}
+
             <div ref={messagesEndRef} />
-          </div>
+          </MessagesContainer>
 
-          {/* Quick Suggestions */}
-          <div style={getResponsiveStyle(styles.quickSuggestions)}>
-            <div style={getResponsiveStyle(styles.suggestionsWrapper)}>
-              {["Best selling items", "Shipping policy", "Track my order"].map(
-                (suggestion) => (
-                  <button
-                    key={suggestion}
-                    onClick={() => {
-                      setInput(suggestion);
-                      setTimeout(() => sendMessage(), 100);
-                    }}
-                    style={getResponsiveStyle(styles.suggestionButton)}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.backgroundColor = "#f9fafb")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.backgroundColor = "white")
-                    }
-                  >
-                    {suggestion}
-                  </button>
-                ),
-              )}
-            </div>
-          </div>
+          <Box
+            sx={{
+              padding: "0 16px",
+              borderTop: 1,
+              borderColor: "divider",
+              pt: 1,
+            }}
+          >
+            <Box sx={{ display: "flex", gap: 1, overflowX: "auto", pb: 1 }}>
+              {[
+                "Best selling items",
+                "Show me laptop deals",
+                "Track my order",
+                "Return policy",
+              ].map((suggestion) => (
+                <QuickSuggestionButton
+                  key={suggestion}
+                  size="small"
+                  onClick={() => {
+                    setInput(suggestion);
+                    setTimeout(() => sendTextMessage(), 100);
+                  }}
+                >
+                  {suggestion}
+                </QuickSuggestionButton>
+              ))}
+            </Box>
+          </Box>
 
-          {/* Input Area */}
-          <div style={getResponsiveStyle(styles.inputArea)}>
-            <div style={getResponsiveStyle(styles.inputWrapper)}>
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message..."
-                style={getResponsiveStyle(styles.textarea)}
-                rows={1}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={isLoading || !input.trim()}
-                style={{
-                  ...getResponsiveStyle(styles.sendButton),
-                  opacity: isLoading || !input.trim() ? 0.5 : 1,
-                  cursor:
-                    isLoading || !input.trim() ? "not-allowed" : "pointer",
-                }}
-                onMouseEnter={(e) => {
-                  if (!isLoading && input.trim()) {
-                    e.currentTarget.style.opacity = "0.9";
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = "1";
+          <InputWrapper>
+            <IconButton size="small" onClick={handleAttachClick}>
+              <AttachFileIcon />
+            </IconButton>
+
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleAttachClose}
+            >
+              <MenuItem onClick={() => handleFileSelect("image")}>
+                <ListItemAvatar>
+                  <ImageIcon />
+                </ListItemAvatar>
+                <ListItemText primary="Upload Image" />
+              </MenuItem>
+              <MenuItem onClick={() => handleFileSelect("pdf")}>
+                <ListItemAvatar>
+                  <PictureAsPdfIcon />
+                </ListItemAvatar>
+                <ListItemText primary="Upload PDF" />
+              </MenuItem>
+            </Menu>
+
+            <StyledTextField
+              size="small"
+              placeholder="Type a message or click the mic to speak..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyPress={(e) =>
+                e.key === "Enter" && !e.shiftKey && sendTextMessage()
+              }
+              multiline
+              maxRows={3}
+              variant="outlined"
+            />
+
+            {input.trim() ? (
+              <IconButton
+                color="primary"
+                onClick={sendTextMessage}
+                disabled={isLoading}
+                sx={{
+                  bgcolor: "primary.main",
+                  color: "white",
+                  "&:hover": { bgcolor: "primary.dark" },
                 }}
               >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <line x1="22" y1="2" x2="11" y2="13" />
-                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                </svg>
-              </button>
-            </div>
-            <p style={getResponsiveStyle(styles.footerText)}>
-              Powered by AI • Responses are generated automatically
-            </p>
-          </div>
-        </div>
+                <SendIcon />
+              </IconButton>
+            ) : (
+              <IconButton
+                color={isRecording ? "error" : "default"}
+                onClick={startBrowserSpeech}
+                disabled={isRecording}
+                sx={{
+                  animation: isRecording
+                    ? `${pulseAnimation} 1s infinite`
+                    : "none",
+                }}
+              >
+                {isRecording ? <MicOffIcon /> : <MicIcon />}
+              </IconButton>
+            )}
+          </InputWrapper>
+
+          <Box
+            sx={{
+              padding: "8px 16px",
+              borderTop: 1,
+              borderColor: "divider",
+              textAlign: "center",
+            }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              Text • Voice • Images • PDFs
+            </Typography>
+          </Box>
+        </ChatWindow>
       )}
-    </div>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 
