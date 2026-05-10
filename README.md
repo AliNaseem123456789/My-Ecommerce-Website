@@ -8,16 +8,16 @@
 ## Features
 
 ### Customer Features
-- 🛍️ **Product Catalog** - Browse with category filters and sorting
-- 🔍 **Advanced Search** - Real-time search with suggestions
-- 🛒 **Shopping Cart** - Add/remove items, update quantities
-- 💖 **Wishlist** - Save favorite products
-- 📝 **Reviews & Ratings** - Share product feedback
-- ❓ **Q&A System** - Ask questions about products
-- 👤 **User Account** - Dashboard, orders, addresses
-- 💳 **Stripe Payments** - Secure checkout
-- 📦 **Order Tracking** - View order history
-- 🤖 **AI Chatbot** - 24/7 shopping assistant
+- **Product Catalog** - Browse with category filters and sorting
+- **Advanced Search** - Real-time search with suggestions
+- **Shopping Cart** - Add/remove items, update quantities
+- **Wishlist** - Save favorite products
+- **Reviews & Ratings** - Share product feedback
+- **Q&A System** - Ask questions about products
+- **User Account** - Dashboard, orders, addresses
+- **Stripe Payments** - Secure checkout
+- **Order Tracking** - View order history
+- **AI Chatbot** - 24/7 shopping assistant
 
 ### Admin Features (Backend)
 - Product management
@@ -87,7 +87,7 @@ VITE_CHATBOT_URL=https://chatbot-gateway-production.up.railway.app
 ```
 
 ## Project Structure
-```text
+```bash
 ecommerce-platform/
 ├── frontend/
 │   ├── public/

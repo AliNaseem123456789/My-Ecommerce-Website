@@ -1,11 +1,5 @@
-
----
-
-## 📄 **CONTRIBUTING.md**
-
-```markdown
 # Contributing to E-Commerce Platform
-```
+
 ## Development Setup
 
 ### Prerequisites
