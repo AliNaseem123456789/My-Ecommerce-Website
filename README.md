@@ -82,7 +82,7 @@ FRONTEND_URL=http://localhost:3001
 
 ### Frontend (.env)
 ```bash
-VITE_API_URL=http://localhost:3000/api/v1
+VITE_API_URL=https://ecommerce-website-backend-k4vc.onrender.com/api/v1
 VITE_CHATBOT_URL=https://chatbot-gateway-production.up.railway.app
 ```
 
@@ -91,8 +91,7 @@ VITE_CHATBOT_URL=https://chatbot-gateway-production.up.railway.app
 ecommerce-platform/
 ├── frontend/
 │   ├── public/
-│   │   └── vite.svg
-│   │
+│   │   
 │   ├── src/
 │   │   ├── api/
 │   │   │   └── apiClient.js

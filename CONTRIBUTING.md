@@ -12,7 +12,7 @@
 
 ```bash
 # Clone
-git clone https://github.com/yourusername/ecommerce-platform.git
+git clone https://github.com/AliNaseem123456789/My-Ecommerce-Website.git
 cd ecommerce-platform
 ```
 # Backend
@@ -30,7 +30,9 @@ npm install
 cp .env.example .env
 npm start
 ```
+
 # Project Structure
+```bash
 backend/src/
 ├── auth/           # JWT authentication
 ├── products/       # Product CRUD
@@ -51,7 +53,7 @@ frontend/src/
 ├── contexts/       # React contexts
 ├── styles/         # CSS modules
 └── assets/         # Images, logos
-
+```
 # Coding Standards
 ## Backend (NestJS)
 - Use decorators (@Controller, @Get, @Post)
