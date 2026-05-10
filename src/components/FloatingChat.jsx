@@ -147,7 +147,7 @@ const QuickSuggestionButton = styled(Button)(({ theme }) => ({
 
 const FloatingChat = ({
   botId = "ecommerce",
-  apiUrl = "https://chatbot-gateway-production-208c.up.railway.app",
+  apiUrl = "http://localhost:8000",
   title = "Shop Assistant",
   welcomeMessage = "Hello! How can I help you with your shopping today?\n\nI can help you with:\n- Product questions\n- Voice commands\n- Product images\n- PDF documents",
   primaryColor = "#1976d2",
@@ -472,8 +472,10 @@ const FloatingChat = ({
         {
           role: "assistant",
           content: data.response,
+          products: data.products || [], 
           timestamp: new Date(),
           type: "text",
+          
         },
       ]);
 
@@ -497,6 +499,70 @@ const FloatingChat = ({
       minute: "2-digit",
     });
   };
+  // Add this function inside your FloatingChat component (before return)
+const renderMessageWithProducts = (content, products) => {
+  if (!products || products.length === 0) {
+    return <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+      {content}
+    </Typography>;
+  }
+
+  return (
+    <Box>
+      <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", mb: 1 }}>
+        {content}
+      </Typography>
+      
+      {/* Product links section */}
+      <Box sx={{ mt: 1, pt: 1, borderTop: 1, borderColor: "divider" }}>
+        <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: "block" }}>
+          🛍️ Related Products:
+        </Typography>
+        {products.map((product, idx) => (
+          <Button
+            key={product.id}
+            component="a"
+            href={`/product/${product.id}`}
+            target="_blank"
+            onClick={(e) => {
+              e.preventDefault();
+              // Handle product click - can open modal, navigate, etc.
+              window.open(`/product/${product.id}`, "_blank");
+            }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              width: "100%",
+              textTransform: "none",
+              padding: "8px 12px",
+              marginBottom: "8px",
+              borderRadius: 2,
+              backgroundColor: "action.hover",
+              "&:hover": {
+                backgroundColor: "action.selected",
+                transform: "translateX(4px)",
+              },
+              transition: "all 0.2s ease",
+            }}
+          >
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="body2" fontWeight="bold">
+                {product.name}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                ⭐ {product.rating || "N/A"}/5
+              </Typography>
+            </Box>
+            <Typography variant="body1" fontWeight="bold" color="primary.main">
+              ${product.price}
+            </Typography>
+          </Button>
+        ))}
+      </Box>
+    </Box>
+  );
+};
 
   return (
     <>
@@ -665,14 +731,7 @@ const FloatingChat = ({
                       </Box>
                     )}
 
-                    {message.type === "text" && (
-                      <Typography
-                        variant="body2"
-                        sx={{ whiteSpace: "pre-wrap" }}
-                      >
-                        {message.content}
-                      </Typography>
-                    )}
+                    {message.type === "text" && renderMessageWithProducts(message.content, message.products)}
 
                     {message.isProcessing && message.type !== "image" && (
                       <CircularProgress size={20} />

@@ -26,10 +26,9 @@ export default function Account() {
 
     setLoadingOrders(true);
     try {
-      console.log("Fetching orders for user ID:", user.id); // Debug log
-      // ✅ Pass the user ID to the service
+      console.log("Fetching orders for user ID:", user.id); 
       const data = await orderService.getUserOrders(user.id);
-      console.log("Orders received:", data); // Debug log
+      console.log("Orders received:", data); 
       setOrders(data || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -38,14 +37,11 @@ export default function Account() {
       setLoadingOrders(false);
     }
   };
-
-  // Load orders automatically if the active tab is "Orders"
   useEffect(() => {
     if (activeTab.toLowerCase().trim() === "orders") {
       loadOrders();
     }
-  }, [activeTab, user]); // ✅ Add user to dependencies
-
+  }, [activeTab, user]); 
   const renderTab = () => {
     const key = activeTab.toLowerCase().trim();
 
