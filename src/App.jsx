@@ -126,7 +126,8 @@ function AppWrapper() {
       <FloatingChat
         botId={botConfig.botId}
         // apiUrl="http://localhost:8000"
-        apiUrl="https://chatbot-gateway.onrender.com"
+        // apiUrl="https://chatbot-gateway.onrender.com"
+        apiUrl="https://chatbot-gateway-production-bd16.up.railway.app"
         // apiUrl="https://chatbot-gateway-production-208c.up.railway.app"
         title={botConfig.title}
         welcomeMessage={botConfig.welcomeMessage}
