@@ -9,7 +9,8 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("token");
+      const token =
+        localStorage.getItem("token") || sessionStorage.getItem("token");
       console.log("Token exists:", !!token);
 
       if (token) {
@@ -26,6 +27,7 @@ export const AuthProvider = ({ children }) => {
           console.error("Auth failed:", error);
           // If token is invalid, clear it
           localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
           setUser(null);
         }
       }
@@ -37,6 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     setUser(null);
   };
 

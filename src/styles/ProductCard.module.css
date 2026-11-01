@@ -15,9 +15,13 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  display: flex;
+  display: none;
   gap: 10px;
   z-index: 10;
+}
+
+.iconBarVisible {
+  display: flex;
 }
 
 .icon {
@@ -125,4 +129,15 @@
 .cartBtnVisible {
   opacity: 1;
   pointer-events: auto;
+}
+
+@media (max-width: 767px) {
+  .iconBar {
+    display: flex;
+  }
+
+  .cartBtn {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

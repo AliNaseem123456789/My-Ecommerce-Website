@@ -4,6 +4,7 @@ import { CartContext } from "../context/CartContext";
 import { AccountService } from "../../services/account.service";
 import { X } from "lucide-react";
 import "../../styles/WishlistTab.css";
+import { productPrimaryImage } from "../../utils/productImage";
 
 export default function WishlistTab() {
   const { wishlist, removeWishlist } = useContext(WishlistContext);
@@ -22,11 +23,7 @@ export default function WishlistTab() {
       setLoading(true);
       try {
         const data = await AccountService.getWishlistProducts(wishlist);
-        const formattedProducts = (data || []).map((p) => ({
-          ...p,
-          staticImages: [`/assets/products/${p.product_id}/main.jpeg`],
-          image: `/assets/products/${p.product_id}/main.jpeg`,
-        }));
+        const formattedProducts = data || [];
 
         setProducts(formattedProducts);
       } catch (err) {
@@ -38,15 +35,6 @@ export default function WishlistTab() {
 
     fetchProducts();
   }, [wishlist]);
-
-  const getLocalImage = (id) => {
-    try {
-      return new URL(`/src/assets/products/${id}.jpeg`, import.meta.url).href;
-    } catch (err) {
-      console.error("Image load error:", err);
-      return "https://via.placeholder.com/100";
-    }
-  };
 
   if (loading && products.length === 0) {
     return <div className="loading-msg">Loading wishlist...</div>;
@@ -68,7 +56,7 @@ export default function WishlistTab() {
         <p className="empty-msg">Your wishlist is empty.</p>
       ) : (
         products.map((product) => {
-          const imageUrl = getLocalImage(product.product_id);
+          const imageUrl = productPrimaryImage(product.product_id);
           return (
             <div key={product.product_id} className="wishlist-row">
               {/* PRODUCT INFO AREA */}

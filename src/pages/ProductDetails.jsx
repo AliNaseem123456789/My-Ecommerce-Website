@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import { productService } from "../services/product.service";
+import { productImages as galleryFor } from "../utils/productImage";
 import { reviewService } from "../services/review.service";
 import { questionService } from "../services/question.service";
 
@@ -74,29 +75,8 @@ function ProductDetails() {
     loadAllData();
   }, [id]);
 
-  const createImageUrl = (filename) => {
-    try {
-      return new URL(`/src/assets/products/${filename}`, import.meta.url).href;
-    } catch {
-      return null;
-    }
-  };
-
   const loadProductImages = (productId) => {
-    const files = [`${productId}.jpg`, `${productId}.png`, `${productId}.jpeg`];
-    for (let i = 1; i <= 5; i++) {
-      ["-", "_"].forEach((sep) => {
-        ["jpg", "png", "jpeg"].forEach((ext) => {
-          files.push(`${productId}${sep}${i}.${ext}`);
-        });
-      });
-    }
-    const images = files.map(createImageUrl).filter(Boolean);
-    setProductImages(
-      images.length
-        ? [...new Set(images)]
-        : ["https://via.placeholder.com/600"],
-    );
+    setProductImages(galleryFor(productId));
   };
 
   if (loading) {

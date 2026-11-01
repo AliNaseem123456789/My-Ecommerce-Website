@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function OrdersTab({ orders, loading, loadOrders }) {
   useEffect(() => {
@@ -51,7 +52,9 @@ export default function OrdersTab({ orders, loading, loadOrders }) {
             >
               <div>
                 <h3 style={{ margin: "0 0 5px 0" }}>
-                  Order #{order.order_id?.slice(0, 8)}
+                  <Link to={`/order/${order.order_id}`}>
+                    Order #{order.order_id?.slice(0, 8)}
+                  </Link>
                 </h3>
                 <p style={{ color: "#666", margin: "0 0 10px 0" }}>
                   {new Date(order.created_at).toLocaleDateString()}

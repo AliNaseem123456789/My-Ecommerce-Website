@@ -4,6 +4,7 @@ import { FaEye, FaBalanceScale, FaRegStar, FaStar } from "react-icons/fa";
 import { WishlistContext } from "./context/WishlistContext";
 
 import styles from "../styles/ProductCard.module.css";
+import { productImages } from "../utils/productImage";
 
 export default function ProductCard({ product, addToCart, onQuickView }) {
   const [hover, setHover] = useState(false);
@@ -12,31 +13,7 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
   const { wishlist, toggleWishlist } = useContext(WishlistContext);
   const id = product.product_id;
 
-  const createImageUrl = (filename) => {
-    try {
-      return new URL(`/src/assets/products/${filename}`, import.meta.url).href;
-    } catch {
-      return null;
-    }
-  };
-
-  const images = useMemo(() => {
-    const imageUrls = [];
-
-    const mainJpeg = createImageUrl(`${id}.jpeg`);
-    if (mainJpeg) imageUrls.push(mainJpeg);
-
-    const hoverJpeg = createImageUrl(`${id}-1.jpeg`);
-    if (hoverJpeg) imageUrls.push(hoverJpeg);
-
-    const mainJpg = createImageUrl(`${id}.jpg`);
-    if (mainJpg && !imageUrls.includes(mainJpg)) imageUrls.push(mainJpg);
-
-    const hoverJpg = createImageUrl(`${id}-1.jpg`);
-    if (hoverJpg && !imageUrls.includes(hoverJpg)) imageUrls.push(hoverJpg);
-
-    return imageUrls.length ? imageUrls : ["https://via.placeholder.com/300"];
-  }, [id]);
+  const images = useMemo(() => productImages(id), [id]);
 
   const displayedImage = hover && images.length > 1 ? images[1] : images[0];
 
@@ -52,8 +29,7 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
       }}
     >
       {/* Hover Icons */}
-      {hover && (
-        <div className={styles.iconBar}>
+      <div className={`${styles.iconBar} ${hover ? styles.iconBarVisible : ""}`}>
           <Icon
             label="Compare"
             active={iconHover === "compare"}
@@ -88,8 +64,7 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
           >
             {isWishlisted ? <FaStar /> : <FaRegStar />}
           </Icon>
-        </div>
-      )}
+      </div>
 
       <Link to={`/product/${id}`} className={styles.link}>
         <div className={styles.imageWrapper}>

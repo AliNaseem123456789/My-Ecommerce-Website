@@ -14,4 +14,11 @@ export const AccountService = {
       throw error;
     }
   },
+  async updateProfile(payload) {
+    return await apiClient.patch("/account/profile", payload);
+  },
+
+  async changePassword(payload) {
+    return await apiClient.post("/account/password", payload);
+  },
 };

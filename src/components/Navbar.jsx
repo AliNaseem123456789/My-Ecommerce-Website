@@ -26,6 +26,7 @@ import CartSidebar from "../components/CartSidebar";
 import AuthModal from "../components/AuthModal";
 import styles from "../styles/Navbar.module.css";
 import { searchService } from "../services/search.service";
+import { productPrimaryImage } from "../utils/productImage";
 import { debounce } from "lodash";
 import { CategoriesService } from "../services/categories.service";
 
@@ -116,15 +117,7 @@ function Navbar() {
     else setCartOpen(true);
   };
 
-  const getProductImageUrl = (productId) => {
-    const imagePath = `/src/assets/products/${productId}-1.jpeg`;
-    try {
-      const url = new URL(imagePath, import.meta.url).href;
-      return url;
-    } catch {
-      return "https://via.placeholder.com/40x40?text=No+Image";
-    }
-  };
+  const getProductImageUrl = (productId) => productPrimaryImage(productId);
   return (
     <div className={styles.navbar}>
       {!isMobile && (
@@ -228,7 +221,7 @@ function Navbar() {
           <FaBars onClick={() => setSidebarOpen(true)} />
           {/* <img src={logo} alt="Logo" className={styles.mobileLogo} /> */}
           <div className={styles.mobileIcons}>
-            <FaSearch onClick={() => navigate("/search")} />
+            <FaSearch onClick={() => navigate("/mobile-search")} />
             <div className={styles.iconWrapper}>
               <FaShoppingCart onClick={handleCartClick} />
               {totalItems > 0 && (

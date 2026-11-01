@@ -1,9 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import "../../styles/CheckoutGuest.css";
 
-export default function CheckoutGuest() {
+export default function CheckoutGuest({ onSignIn, onContinue }) {
   const { user, loading } = useContext(AuthContext);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
 
   if (loading || user) return null;
 
@@ -15,7 +17,9 @@ export default function CheckoutGuest() {
           Have an Account? 🐾 <br />
           Sign in to check out faster or continue as a guest.
         </p>
-        <button className="signin-btn">Sign In or Create Account</button>
+        <button className="signin-btn" type="button" onClick={onSignIn}>
+          Sign In or Create Account
+        </button>
       </div>
       <div className="checkout-card checkout-section-guest">
         <h3 className="guest-title">Guest Checkout</h3>
@@ -27,6 +31,8 @@ export default function CheckoutGuest() {
           type="text"
           placeholder="First and Last Name"
           className="checkout-input"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
         />
 
         <input
@@ -34,9 +40,17 @@ export default function CheckoutGuest() {
           placeholder="Email"
           className="checkout-input"
           style={{ marginBottom: "15px" }}
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
         />
 
-        <button className="guest-btn">Checkout As Guest</button>
+        <button
+          className="guest-btn"
+          type="button"
+          onClick={() => onContinue({ name, email })}
+        >
+          Checkout As Guest
+        </button>
 
         <div className="divider"></div>
       </div>

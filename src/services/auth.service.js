@@ -11,8 +11,17 @@ export const AuthService = {
     return await apiClient.post("/auth/login", { email, password });
   },
 
+  async forgotPassword(email) {
+    return await apiClient.post("/auth/forgot-password", { email });
+  },
+
+  async resetPassword(token, password) {
+    return await apiClient.post("/auth/reset-password", { token, password });
+  },
+
   logout() {
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
     window.location.reload();
   },
 };

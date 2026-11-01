@@ -8,6 +8,9 @@ import { CartProvider, CartContext } from "./components/context/CartContext";
 import LandingPage from "./pages/LandingPage";
 import Footer from "./components/Footer";
 import MobileSearch from "./components/MobileSearch";
+import SearchResults from "./pages/SearchResults";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import ResetPassword from "./pages/ResetPassword";
 import { AuthProvider } from "./components/context/AuthContext";
 import AboutUs from "./pages/static/AboutUs";
 import PrivacyPolicy from "./pages/static/PrivacyPolicy";
@@ -94,7 +97,10 @@ function AppWrapper() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/search" element={<MobileSearch />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/mobile-search" element={<MobileSearch />} />
+        <Route path="/order/:id" element={<OrderConfirmation />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions" element={<TermsConditions />} />
@@ -120,6 +126,7 @@ function AppWrapper() {
           }
         />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       {showSidebar && <CartSidebar onClose={closeSidebar} />}
       <Footer />

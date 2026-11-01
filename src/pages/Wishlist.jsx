@@ -5,6 +5,7 @@ import { AuthContext } from "../components/context/AuthContext";
 import apiClient from "../api/apiClient";
 import { X } from "lucide-react";
 import styles from "../styles/wishlist.module.css";
+import { productPrimaryImage } from "../utils/productImage";
 
 export default function Wishlist() {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -13,14 +14,6 @@ export default function Wishlist() {
 
   const [products, setProducts] = useState([]);
   const [loadingProducts, setLoadingProducts] = useState(false);
-
-  const getLocalImage = (id) => {
-    try {
-      return new URL(`/src/assets/products/${id}.jpeg`, import.meta.url).href;
-    } catch {
-      return "https://via.placeholder.com/100";
-    }
-  };
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -87,7 +80,7 @@ export default function Wishlist() {
                   <X size={18} />
                 </button>
                 <img
-                  src={getLocalImage(product.product_id)}
+                  src={productPrimaryImage(product.product_id)}
                   alt={product.name}
                   className={styles.image}
                 />

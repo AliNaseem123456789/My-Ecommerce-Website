@@ -14,7 +14,10 @@ import CheckoutSummary from "../components/Checkout/CheckoutSummary";
 import CheckoutPromo from "../components/Checkout/CheckoutPromo";
 import StripePaymentForm from "../components/Checkout/StripePaymentForm";
 import CheckoutSavedAddresses from "../components/Checkout/CheckoutSavedAdresses";
+import CheckoutGuest from "../components/Checkout/CheckoutGuest";
+import AuthModal from "../components/AuthModal";
 import { paymentsService } from "../services/payments.service";
+import { productPrimaryImage } from "../utils/productImage";
 
 import paypal from "../assets/Logos/Paypal.jpeg";
 import karna from "../assets/Logos/karna.jpeg";
@@ -64,6 +67,8 @@ export default function Checkout() {
   const [selectedAddressId, setSelectedAddressId] = useState(null);
   const [pendingOrderId, setPendingOrderId] = useState(null);
   const [serverTotal, setServerTotal] = useState(null);
+  const [guestStarted, setGuestStarted] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   // ✅ Calculate subtotal FIRST
   const subtotal = cartItems.reduce(
@@ -108,7 +113,7 @@ export default function Checkout() {
       confirmButtonText: "Login Now",
       confirmButtonColor: "#000",
     }).then(() => {
-      navigate("/login");
+      navigate("/login-required");
     });
   };
 
@@ -259,6 +264,26 @@ export default function Checkout() {
       }}
     >
       <Grid container spacing={3}>
+        {!user && !guestStarted && (
+          <Grid size={{ xs: 12 }}>
+            <CheckoutGuest
+              onSignIn={() => setAuthOpen(true)}
+              onContinue={({ name, email }) => {
+                const [firstName, ...rest] = name.trim().split(/\s+/);
+                setForm((current) => ({
+                  ...current,
+                  first_name: firstName || current.first_name,
+                  last_name: rest.join(" "),
+                  email: email || current.email,
+                }));
+                setGuestStarted(true);
+              }}
+            />
+            {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
+          </Grid>
+        )}
+        {(user || guestStarted) && (
+        <>
         {/* Left Column - Forms */}
         <Grid size={{ xs: 12, md: 8 }}>
           {/* Step 1: Delivery Information */}
@@ -323,8 +348,9 @@ export default function Checkout() {
           <CheckoutSummary
             cartItems={cartItems.map((item) => ({
               ...item,
-              image:
-                item.products.image_url || `https://via.placeholder.com/80`,
+              image: productPrimaryImage(
+                item.products.product_id || item.products.id,
+              ),
             }))}
             subtotal={subtotal}
             shippingMethod={shippingMethod}
@@ -349,6 +375,8 @@ export default function Checkout() {
 
           <CheckoutPromo />
         </Grid>
+        </>
+        )}
       </Grid>
     </Box>
   );

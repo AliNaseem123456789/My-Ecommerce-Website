@@ -20,7 +20,14 @@ function MobileSearch() {
         </button>
       </div>
       <h2 className={styles.mobileSearchTitle}>SEARCH OUR STORE</h2>
-      <div className={styles.mobileSearchInputWrapper}>
+      <form
+        className={styles.mobileSearchInputWrapper}
+        onSubmit={(event) => {
+          event.preventDefault();
+          const query = searchQuery.trim();
+          if (query) navigate(`/search?q=${encodeURIComponent(query)}`);
+        }}
+      >
         <input
           type="text"
           placeholder="Search products..."
@@ -28,7 +35,7 @@ function MobileSearch() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className={styles.mobileSearchInput}
         />
-      </div>
+      </form>
       <div>
         <h3 className={styles.mobileSearchSubtitle}>Popular Searches</h3>
         <div className={styles.mobileSearchList}>
@@ -36,7 +43,7 @@ function MobileSearch() {
             <span
               key={index}
               className={styles.mobileSearchItem}
-              onClick={() => alert(`You clicked ${item}`)}
+              onClick={() => navigate(`/search?q=${encodeURIComponent(item)}`)}
             >
               {item}
             </span>

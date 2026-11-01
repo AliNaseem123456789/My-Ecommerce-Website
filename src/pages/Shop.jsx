@@ -54,22 +54,9 @@ function Shop() {
     });
 
     const extended = (data || []).map((p) => {
-      const formats = ["avif", "webp", "jpg", "jpeg", "png"];
-      const maxImages = 6;
-
-      const staticImages = Array.from({ length: maxImages }).flatMap(
-        (_, index) =>
-          formats.map(
-            (ext) =>
-              `/assets/products/${p.product_id}/${index === 0 ? "main" : index}.${ext}`,
-          ),
-      );
-
       const category = categories.find((c) => c.category_id === p.category_id);
-
       return {
         ...p,
-        staticImages,
         categoryName: category?.name || "Uncategorized",
       };
     });
@@ -146,7 +133,7 @@ function Shop() {
             {products.map((p) => (
               <ProductCard
                 key={p.product_id}
-                product={{ ...p, images: p.staticImages }}
+                product={p}
                 addToCart={addToCart}
                 onQuickView={setQuickViewProduct}
               />

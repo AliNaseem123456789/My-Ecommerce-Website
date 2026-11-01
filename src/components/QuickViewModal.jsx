@@ -1,20 +1,13 @@
 import React, { useContext, useState } from "react";
 import { FaTimes, FaRegStar, FaStar } from "react-icons/fa";
 import { WishlistContext } from "./context/WishlistContext";
+import { productPrimaryImage } from "../utils/productImage";
 
 export default function QuickViewModal({ product, onClose }) {
   const { wishlist, toggleWishlist } = useContext(WishlistContext);
   const [hoverStar, setHoverStar] = useState(false);
 
   const id = product.product_id;
-
-  const getLocalImage = (id) => {
-    try {
-      return new URL(`/src/assets/products/${id}.jpeg`, import.meta.url).href;
-    } catch {
-      return "https://via.placeholder.com/400";
-    }
-  };
 
   const renderStars = (rating = 4.5) => {
     const fullStars = Math.floor(rating);
@@ -74,7 +67,7 @@ export default function QuickViewModal({ product, onClose }) {
         {}
         <div style={{ flex: 1, paddingRight: "20px" }}>
           <img
-            src={getLocalImage(id)}
+            src={productPrimaryImage(id)}
             alt={product.name}
             style={{
               width: "100%",

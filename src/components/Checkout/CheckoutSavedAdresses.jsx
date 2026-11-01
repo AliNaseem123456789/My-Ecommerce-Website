@@ -554,11 +554,16 @@ export default function CheckoutSavedAddresses({
                   </Button>
                   <Button
                     variant="contained"
-                    onClick={saveNewAddress}
+                    onClick={saveDeliverContinue}
                     sx={{ bgcolor: "black", "&:hover": { bgcolor: "#111" } }}
                   >
-                    {editingAddress ? "Update Address" : "Save Address"}
+                    Continue
                   </Button>
+                  {userId && (
+                    <Button variant="outlined" onClick={saveNewAddress}>
+                      {editingAddress ? "Update Address" : "Save Address"}
+                    </Button>
+                  )}
                 </Box>
               </Paper>
             )}

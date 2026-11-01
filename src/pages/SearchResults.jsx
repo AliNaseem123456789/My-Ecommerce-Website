@@ -45,15 +45,15 @@ export default function SearchResults() {
     { value: "rating_desc", label: "Highest Rated" },
   ];
 
-  const performSearch = async () => {
-    if (!searchQuery.trim()) {
+  const performSearch = async (query = searchQuery) => {
+    if (!query.trim()) {
       setProducts([]);
       return;
     }
 
     setLoading(true);
     try {
-      const results = await searchService.searchProducts(searchQuery, filters);
+      const results = await searchService.searchProducts(query, filters);
       setProducts(results || []);
       setTotalPages(Math.ceil((results?.length || 0) / 12));
     } catch (error) {
@@ -65,8 +65,9 @@ export default function SearchResults() {
   };
 
   useEffect(() => {
-    if (initialQuery) {
-      performSearch();
+    setSearchQuery(initialQuery);
+    if (initialQuery.trim()) {
+      performSearch(initialQuery);
     }
   }, [initialQuery]);
 

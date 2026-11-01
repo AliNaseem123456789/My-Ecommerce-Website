@@ -1,140 +1,205 @@
 import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { CartContext } from "./context/CartContext";
 import { AuthService } from "../services/auth.service";
 
 import styles from "../styles/AuthModal.module.css";
 
+function storeToken(token, staySignedIn) {
+  const keep = staySignedIn ? localStorage : sessionStorage;
+  const drop = staySignedIn ? sessionStorage : localStorage;
+  keep.setItem("token", token);
+  drop.removeItem("token");
+}
+
 export default function AuthModal({ onClose }) {
   const { setUser } = useContext(AuthContext);
   const { userId: guestId, mergeCart } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [staySignedIn, setStaySignedIn] = useState(true);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [notice, setNotice] = useState("");
 
-  const handleLogin = async () => {
-    setErrorMessage("");
-    try {
-      const data = await AuthService.login(email, password);
-      localStorage.setItem("token", data.access_token);
-      setUser(data.user);
-
-      if (mergeCart && guestId) {
-        await mergeCart(guestId, data.user.id);
-      }
-
-      onClose(true);
-    } catch {
-      setErrorMessage("Invalid email or password.");
+  const finish = async (data) => {
+    storeToken(data.access_token, staySignedIn);
+    setUser(data.user);
+    if (mergeCart && guestId && guestId !== data.user.id) {
+      await mergeCart(guestId, data.user.id);
     }
+    onClose(true);
   };
 
-  const handleSignup = async () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (submitting) return;
     setErrorMessage("");
+    setNotice("");
+    if (mode === "signup" && !acceptedTerms) {
+      setErrorMessage("Please agree to the Privacy Policy and Terms of Use.");
+      return;
+    }
+    setSubmitting(true);
     try {
-      const data = await AuthService.signup(name, email, password);
-      localStorage.setItem("token", data.access_token);
-      setUser(data.user);
-      onClose();
+      if (mode === "forgot") {
+        await AuthService.forgotPassword(email);
+        setNotice("If an account exists for that email, a reset link is on its way.");
+        return;
+      }
+      const data =
+        mode === "login"
+          ? await AuthService.login(email, password)
+          : await AuthService.signup(name, email, password);
+      await finish(data);
     } catch (err) {
-      setErrorMessage(err.response?.data?.message || "Signup failed.");
+      const message = err.response?.data?.message;
+      setErrorMessage(
+        Array.isArray(message)
+          ? message.join(", ")
+          : message || (mode === "login" ? "Invalid email or password." : "Signup failed."),
+      );
+    } finally {
+      setSubmitting(false);
     }
   };
 
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <button className={styles.closeBtn} onClick={onClose}>
+        <button className={styles.closeBtn} onClick={onClose} type="button">
           ✕
         </button>
 
         <h2 className={styles.title}>
-          {mode === "login" ? "Sign In" : "Sign Up"}
+          {mode === "login" ? "Sign In" : mode === "signup" ? "Sign Up" : "Reset Password"}
         </h2>
 
-        <p className={styles.switchText}>
-          {mode === "login" ? (
-            <>
-              Don’t have an account yet?{" "}
-              <span
-                className={styles.switchLink}
-                onClick={() => {
-                  setMode("signup");
-                  setErrorMessage("");
-                }}
-              >
-                Sign up for free
-              </span>
-            </>
-          ) : (
-            <>
-              Already have an account?{" "}
-              <span
-                className={styles.switchLink}
-                onClick={() => {
-                  setMode("login");
-                  setErrorMessage("");
-                }}
-              >
-                Log in
-              </span>
-            </>
+        {mode !== "forgot" && (
+          <p className={styles.switchText}>
+            {mode === "login" ? (
+              <>
+                Don’t have an account yet?{" "}
+                <span
+                  className={styles.switchLink}
+                  onClick={() => {
+                    setMode("signup");
+                    setErrorMessage("");
+                  }}
+                >
+                  Sign up for free
+                </span>
+              </>
+            ) : (
+              <>
+                Already have an account?{" "}
+                <span
+                  className={styles.switchLink}
+                  onClick={() => {
+                    setMode("login");
+                    setErrorMessage("");
+                  }}
+                >
+                  Log in
+                </span>
+              </>
+            )}
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          {mode === "signup" && (
+            <input
+              type="text"
+              placeholder="Your Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={styles.input}
+            />
           )}
-        </p>
 
-        {mode === "signup" && (
           <input
-            type="text"
-            placeholder="Your Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type="email"
+            placeholder="Your username or email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className={styles.input}
+            required
           />
-        )}
 
-        <input
-          type="email"
-          placeholder="Your username or email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className={styles.input}
-        />
+          {mode !== "forgot" && (
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={styles.input}
+              required
+            />
+          )}
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={styles.input}
-        />
+          {mode === "login" && (
+            <div className={styles.loginOptions}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={staySignedIn}
+                  onChange={(e) => setStaySignedIn(e.target.checked)}
+                />{" "}
+                Stay signed in
+              </label>
+              <span
+                className={styles.forgot}
+                onClick={() => {
+                  setMode("forgot");
+                  setErrorMessage("");
+                  setNotice("");
+                }}
+              >
+                Forgot your password?
+              </span>
+            </div>
+          )}
 
-        {mode === "login" && (
-          <div className={styles.loginOptions}>
-            <label>
-              <input type="checkbox" /> Stay signed in
+          {mode === "signup" && (
+            <label className={styles.terms}>
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+              />{" "}
+              Yes, I agree with Privacy Policy and Terms of Use
             </label>
-            <span className={styles.forgot}>Forgot your password?</span>
-          </div>
+          )}
+
+          {errorMessage && <div className={styles.error}>{errorMessage}</div>}
+          {notice && <div>{notice}</div>}
+
+          <button className={styles.submitBtn} type="submit" disabled={submitting}>
+            {submitting
+              ? "Please wait..."
+              : mode === "login"
+                ? "LOG IN"
+                : mode === "signup"
+                  ? "SIGN UP"
+                  : "SEND RESET LINK"}
+          </button>
+        </form>
+        {mode === "forgot" && (
+          <button
+            type="button"
+            className={styles.switchLink}
+            onClick={() => navigate("/reset-password")}
+          >
+            I already have a reset link
+          </button>
         )}
-
-        {mode === "signup" && (
-          <label className={styles.terms}>
-            <input type="checkbox" /> Yes, I agree with Privacy Policy and Terms
-            of Use
-          </label>
-        )}
-
-        {errorMessage && <div className={styles.error}>{errorMessage}</div>}
-
-        <button
-          className={styles.submitBtn}
-          onClick={mode === "login" ? handleLogin : handleSignup}
-        >
-          {mode === "login" ? "LOG IN" : "SIGN UP"}
-        </button>
       </div>
     </div>
   );

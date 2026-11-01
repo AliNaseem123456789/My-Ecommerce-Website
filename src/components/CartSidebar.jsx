@@ -3,6 +3,7 @@ import { CartContext } from "./context/CartContext";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/CartSidebar.module.css";
+import { productPrimaryImage } from "../utils/productImage";
 
 export default function CartSidebar({ onClose }) {
   const { cartItems, updateQuantity, removeFromCart } = useContext(CartContext);
@@ -12,14 +13,6 @@ export default function CartSidebar({ onClose }) {
     (sum, item) => sum + item.products.price * item.quantity,
     0,
   );
-
-  const getLocalImage = (id) => {
-    try {
-      return new URL(`/src/assets/products/${id}.jpeg`, import.meta.url).href;
-    } catch {
-      return "https://via.placeholder.com/80";
-    }
-  };
 
   return (
     <>
@@ -42,7 +35,7 @@ export default function CartSidebar({ onClose }) {
           {cartItems.map((item) => (
             <div key={item.cart_item_id} className={styles.item}>
               <img
-                src={getLocalImage(item.products.product_id)}
+                src={productPrimaryImage(item.products.product_id)}
                 alt={item.products.name}
                 className={styles.image}
               />

@@ -4,6 +4,7 @@ import { Pencil, Truck, Ticket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import styles from "../styles/cart.module.css";
+import { productPrimaryImage } from "../utils/productImage";
 
 export default function Cart() {
   const { cartItems, updateQuantity, removeFromCart } = useContext(CartContext);
@@ -13,14 +14,6 @@ export default function Cart() {
     (sum, item) => sum + item.products.price * item.quantity,
     0,
   );
-
-  const getLocalImage = (id) => {
-    try {
-      return new URL(`/src/assets/products/${id}.jpeg`, import.meta.url).href;
-    } catch {
-      return "https://via.placeholder.com/100";
-    }
-  };
 
   return (
     <div className={styles.page}>
@@ -36,7 +29,7 @@ export default function Cart() {
           <div key={item.cart_item_id} className={styles.cartRow}>
             <div className={styles.productInfo}>
               <img
-                src={getLocalImage(item.products.product_id)}
+                src={productPrimaryImage(item.products.product_id)}
                 alt={item.products.name}
                 className={styles.productImage}
               />
