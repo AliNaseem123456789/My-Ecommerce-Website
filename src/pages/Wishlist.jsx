@@ -17,28 +17,17 @@ export default function Wishlist() {
 
   useEffect(() => {
     const fetchDetails = async () => {
-      if (authLoading || !user?.id) return;
+      if (authLoading) return;
       if (wishlist.length === 0) {
         setProducts([]);
         return;
       }
-      if (authLoading) {
-        console.log("Stuck at: Auth is still loading");
-        return;
-      }
-      if (!user) {
-        console.log("Stuck at: No user object found in Context");
-        return;
-      }
-      if (!user.id) {
-        console.log("Stuck at: User object exists but .id is missing", user);
-        return;
-      }
       setLoadingProducts(true);
       try {
-        // response is already the array because of your interceptor
-        const data = await apiClient.get(`/wishlist/${user.id}/details`);
-        setProducts(Array.isArray(data) ? data : []);
+        const data = user?.id
+          ? await apiClient.get(`/wishlist/${user.id}/details`)
+          : await apiClient.get(`/products/by-ids?ids=${wishlist.join(",")}`);
+        setProducts(Array.isArray(data) ? data : data?.items || []);
       } catch (error) {
         console.error("Fetch Details Error:", error);
       } finally {
@@ -50,13 +39,23 @@ export default function Wishlist() {
   }, [user?.id, wishlist, authLoading]);
 
   if (authLoading) return <div className={styles.page}>Loading session...</div>;
-  if (!user)
-    return <div className={styles.page}>Please log in to view wishlist.</div>;
+
+  const moveToCart = async (product) => {
+    await addToCart(product);
+    if (wishlist.includes(product.product_id)) {
+      await toggleWishlist(product.product_id);
+    }
+  };
 
   return (
     <div className={styles.page}>
       <div className={styles.container}>
         <h2 className={styles.title}>My Wishlist</h2>
+        {products.length > 0 && (
+          <button type="button" onClick={() => products.forEach((product) => moveToCart(product))}>
+            Move all to cart
+          </button>
+        )}
 
         {/* Row Headers */}
         <div className={styles.headerRow}>
@@ -82,6 +81,9 @@ export default function Wishlist() {
                 <img
                   src={productImageFrom(product)}
                   alt={product.name}
+                  width="80"
+                  height="80"
+                  loading="lazy"
                   className={styles.image}
                 />
 
@@ -90,10 +92,10 @@ export default function Wishlist() {
               <div className={styles.price}>${product.price}</div>
               <div className={styles.action}>
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={() => moveToCart(product)}
                   className={styles.cartBtn}
                 >
-                  Add to Cart
+                  Move to cart
                 </button>
               </div>
             </div>

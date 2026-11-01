@@ -6,4 +6,5 @@ export const orderService = {
   getOrder: async (orderId) => {
     return await apiClient.get(`/orders/${orderId}`);
   },
+  track: (orderId, email) => apiClient.post("/orders/track", { orderId, email }),
 };

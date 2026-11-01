@@ -174,6 +174,16 @@ export default function Admin() {
               <Box key={order.order_id} py={1} borderBottom="1px solid #eee">
                 <Typography>{order.order_id}</Typography>
                 <Typography>Status: {order.status} · Payment: {order.payment_status} · ${Number(order.total).toFixed(2)}</Typography>
+                <Box display="flex" gap={1} mt={1}>
+                  <TextField size="small" label="Carrier" defaultValue={order.carrier || ""} id={`carrier-${order.order_id}`} />
+                  <TextField size="small" label="Tracking number" defaultValue={order.tracking_number || ""} id={`track-${order.order_id}`} />
+                  <Button size="small" onClick={async () => {
+                    const carrier = document.getElementById(`carrier-${order.order_id}`).value;
+                    const tracking_number = document.getElementById(`track-${order.order_id}`).value;
+                    await adminService.updateTracking(order.order_id, { carrier, tracking_number });
+                    load();
+                  }}>Save tracking</Button>
+                </Box>
                 {options.length > 0 && (
                   <TextField select size="small" defaultValue="" label="Move to" onChange={async (e) => {
                     await adminService.updateOrderStatus(order.order_id, e.target.value);

@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaEye, FaBalanceScale, FaRegStar, FaStar } from "react-icons/fa";
 import { WishlistContext } from "./context/WishlistContext";
+import { CompareContext } from "./context/CompareContext";
 
 import styles from "../styles/ProductCard.module.css";
 import { productImageFrom } from "../utils/productImage";
@@ -11,6 +12,7 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
   const [iconHover, setIconHover] = useState(null);
 
   const { wishlist, toggleWishlist } = useContext(WishlistContext);
+  const { items: compareItems, toggleCompare } = useContext(CompareContext);
   const id = product.product_id;
 
   const displayedImage = productImageFrom(product);
@@ -30,9 +32,13 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
       <div className={`${styles.iconBar} ${hover ? styles.iconBarVisible : ""}`}>
           <Icon
             label="Compare"
-            active={iconHover === "compare"}
+            active={iconHover === "compare" || compareItems.some((item) => item.product_id === id)}
             onEnter={() => setIconHover("compare")}
             onLeave={() => setIconHover(null)}
+            onClick={(e) => {
+              e.preventDefault();
+              toggleCompare(product);
+            }}
           >
             <FaBalanceScale />
           </Icon>
@@ -69,6 +75,9 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
           <img
             src={displayedImage}
             alt={product.name}
+            width="300"
+            height="300"
+            loading="lazy"
             onError={(e) => (e.target.src = "https://via.placeholder.com/300")}
           />
         </div>

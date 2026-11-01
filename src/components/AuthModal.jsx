@@ -2,6 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import { CartContext } from "./context/CartContext";
+import { WishlistContext } from "./context/WishlistContext";
 import { AuthService } from "../services/auth.service";
 
 import styles from "../styles/AuthModal.module.css";
@@ -16,6 +17,7 @@ function storeToken(token, staySignedIn) {
 export default function AuthModal({ onClose }) {
   const { setUser } = useContext(AuthContext);
   const { userId: guestId, mergeCart } = useContext(CartContext);
+  const { mergeWishlist } = useContext(WishlistContext);
   const navigate = useNavigate();
 
   const [mode, setMode] = useState("login");
@@ -34,6 +36,7 @@ export default function AuthModal({ onClose }) {
     if (mergeCart && guestId && guestId !== data.user.id) {
       await mergeCart(guestId, data.user.id);
     }
+    if (mergeWishlist) await mergeWishlist(data.user.id);
     onClose(true);
   };
 

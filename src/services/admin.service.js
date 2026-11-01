@@ -10,8 +10,10 @@ export const adminService = {
     apiClient.post(`/admin/products/${id}/image`, { dataUrl }),
   orders: (status) =>
     apiClient.get("/admin/orders", { params: status ? { status } : {} }),
-  updateOrderStatus: (id, status) =>
-    apiClient.patch(`/admin/orders/${id}/status`, { status }),
+  updateOrderStatus: (id, status, tracking) =>
+    apiClient.patch(`/admin/orders/${id}/status`, { status, ...tracking }),
+  updateTracking: (id, body) =>
+    apiClient.patch(`/admin/orders/${id}/tracking`, body),
   customers: () => apiClient.get("/admin/customers"),
   reviews: () => apiClient.get("/admin/reviews"),
   deleteReview: (id) => apiClient.delete(`/admin/reviews/${id}`),

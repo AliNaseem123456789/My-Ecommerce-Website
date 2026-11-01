@@ -7,7 +7,7 @@ import "../../styles/WishlistTab.css";
 import { productImageFrom } from "../../utils/productImage";
 
 export default function WishlistTab() {
-  const { wishlist, removeWishlist } = useContext(WishlistContext);
+  const { wishlist, toggleWishlist } = useContext(WishlistContext);
   const { addToCart } = useContext(CartContext);
 
   const [products, setProducts] = useState([]);
@@ -62,7 +62,7 @@ export default function WishlistTab() {
               {/* PRODUCT INFO AREA */}
               <div className="product-info">
                 <button
-                  onClick={() => removeWishlist(product.product_id)}
+                  onClick={() => toggleWishlist(product.product_id)}
                   className="remove-btn"
                   title="Remove from wishlist"
                 >
@@ -72,6 +72,9 @@ export default function WishlistTab() {
                 <img
                   src={imageUrl}
                   alt={product.name}
+                  width="80"
+                  height="80"
+                  loading="lazy"
                   className="product-img"
                 />
 
@@ -87,9 +90,14 @@ export default function WishlistTab() {
               <div className="action-area">
                 <button
                   className="add-cart-btn"
-                  onClick={() => addToCart(product)}
+                  onClick={async () => {
+                    await addToCart(product);
+                    if (wishlist.includes(product.product_id)) {
+                      await toggleWishlist(product.product_id);
+                    }
+                  }}
                 >
-                  Add to Cart
+                  Move to cart
                 </button>
               </div>
             </div>

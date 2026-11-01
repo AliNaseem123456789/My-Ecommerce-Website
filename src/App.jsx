@@ -26,6 +26,9 @@ import ProtectedRoute from "./components/ProtectedRoutes";
 import LoginRequired from "./pages/LoginRequired";
 import Home from "./pages/Home";
 import { WishlistProvider } from "./components/context/WishlistContext";
+import { CompareProvider } from "./components/context/CompareContext";
+import CompareBar from "./components/CompareBar";
+import CompareTab from "./components/Accountx/CompareTab";
 import Checkout from "./pages/Checkout";
 import Breadcrumbs from "./components/Breadcrumbs";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -119,14 +122,8 @@ function AppWrapper() {
             </ProtectedRoute>
           }
         />
-        <Route
-          path="/track-order"
-          element={
-            <ProtectedRoute>
-              <TrackOrder />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/track-order" element={<TrackOrder />} />
+        <Route path="/compare" element={<CompareTab />} />
         <Route
           path="/admin"
           element={
@@ -139,6 +136,7 @@ function AppWrapper() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       {showSidebar && <CartSidebar onClose={closeSidebar} />}
+      <CompareBar />
       <Footer />
       <FloatingChat
         botId={botConfig.botId}
@@ -160,9 +158,11 @@ function App() {
     <AuthProvider>
       <WishlistProvider>
         <CartProvider>
-          <BrowserRouter>
-            <AppWrapper />
-          </BrowserRouter>
+          <CompareProvider>
+            <BrowserRouter>
+              <AppWrapper />
+            </BrowserRouter>
+          </CompareProvider>
         </CartProvider>
       </WishlistProvider>
     </AuthProvider>
