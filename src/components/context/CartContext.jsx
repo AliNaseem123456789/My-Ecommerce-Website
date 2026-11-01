@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import apiClient from "../../api/apiClient";
 import { AuthContext } from "./AuthContext";
 import { v4 as uuidv4 } from "uuid";
+import { track } from "@vercel/analytics";
 
 export const CartContext = createContext();
 
@@ -42,6 +43,10 @@ export const CartProvider = ({ children }) => {
         userId,
         productId: product.product_id,
         quantity: 1,
+      });
+      track("add_to_cart", {
+        product_id: String(product.product_id),
+        value: Number(product.price) || 0,
       });
       fetchCart();
     } catch (err) {

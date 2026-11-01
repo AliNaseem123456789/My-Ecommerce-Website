@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AuthService } from "../../services/auth.service";
 
 export default function DevicesTab() {
   const [sessions, setSessions] = useState([]);
   const [error, setError] = useState("");
+  const [started, setStarted] = useState(false);
 
   const load = async () => {
     try {
@@ -14,9 +15,10 @@ export default function DevicesTab() {
     }
   };
 
-  useEffect(() => {
+  if (!started) {
+    setStarted(true);
     load();
-  }, []);
+  }
 
   return (
     <div>

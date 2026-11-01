@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { CompareContext } from "../context/CompareContext";
+import { CompareContext } from "../context/compare-context";
 import { productImageFrom } from "../../utils/productImage";
 
 const fields = [

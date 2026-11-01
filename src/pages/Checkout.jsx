@@ -19,6 +19,7 @@ import AuthModal from "../components/AuthModal";
 import { paymentsService } from "../services/payments.service";
 import { couponService, shippingService } from "../services/coupon.service";
 import { productImageFrom } from "../utils/productImage";
+import { track } from "@vercel/analytics";
 
 import paypal from "../assets/Logos/Paypal.jpeg";
 import karna from "../assets/Logos/karna.jpeg";
@@ -155,6 +156,7 @@ export default function Checkout() {
     }
 
     setLoading(true);
+    track("begin_checkout", { value: Number(subtotal) || 0 });
 
     try {
       const payload = {
@@ -236,6 +238,10 @@ export default function Checkout() {
 
   // Handle successful Stripe payment
   const handleStripeSuccess = async () => {
+    track("purchase", {
+      order_id: pendingOrderId,
+      value: Number(serverTotal ?? totalAmount) || 0,
+    });
     setOrderSuccess(pendingOrderId);
     await Swal.fire({
       title: "Payment Successful!",

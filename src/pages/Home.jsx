@@ -12,6 +12,7 @@ import WhyShopWithUs from "../components/Landing/WhyShopWithUs";
 import { heroImages } from "../data/heroData";
 import { LandingService } from "../services/landing.service";
 import Testimonials from "../components/Landing/Testimonials";
+import RecentlyViewed from "../components/RecentlyViewed";
 import styles from "../styles/LandingPage.module.css";
 
 export default function Home() {
@@ -269,6 +270,7 @@ export default function Home() {
 
         <div className={styles.sectionSpacing}>
           <Testimonials />
+          <RecentlyViewed />
         </div>
       </section>
     </>

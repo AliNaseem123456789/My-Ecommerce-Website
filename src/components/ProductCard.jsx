@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaEye, FaBalanceScale, FaRegStar, FaStar } from "react-icons/fa";
 import { WishlistContext } from "./context/WishlistContext";
-import { CompareContext } from "./context/CompareContext";
+import { CompareContext } from "./context/compare-context";
 
 import styles from "../styles/ProductCard.module.css";
 import { productImageFrom } from "../utils/productImage";

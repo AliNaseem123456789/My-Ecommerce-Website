@@ -5,4 +5,5 @@ export const productService = {
     return await apiClient.get(`/products/${id}`);
   },
   getFeatured: (ids) => apiClient.get(`/products/featured?ids=${ids}`),
+  getRelated: (id) => apiClient.get(`/products/${id}/related`),
 };

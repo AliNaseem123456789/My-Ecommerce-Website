@@ -1,10 +1,13 @@
 import React, { useContext, useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../components/context/AuthContext";
 
 import { productService } from "../services/product.service";
 import { productImageFrom } from "../utils/productImage";
 import { Helmet } from "react-helmet-async";
+import { track } from "@vercel/analytics";
+import RecentlyViewed from "../components/RecentlyViewed";
+import { rememberProduct } from "../utils/recentProducts";
 import { reviewService } from "../services/review.service";
 import { questionService } from "../services/question.service";
 
@@ -40,6 +43,7 @@ function ProductDetails() {
 
   const [reviews, setReviews] = useState([]);
   const [questions, setQuestions] = useState([]);
+  const [related, setRelated] = useState([]);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [editingReview, setEditingReview] = useState(null);
@@ -70,6 +74,15 @@ function ProductDetails() {
           setReviews(reviewData || []);
           setQuestions(questionData || []);
           loadProductImages(prodData);
+          rememberProduct(prodData);
+          track("view_item", {
+            product_id: String(prodData.product_id),
+            value: Number(prodData.price) || 0,
+          });
+          productService
+            .getRelated(id)
+            .then((rows) => setRelated(Array.isArray(rows) ? rows : []))
+            .catch(() => setRelated([]));
         }
       } catch (err) {
         console.error("FULL ERROR OBJECT:", err);
@@ -384,6 +397,26 @@ function ProductDetails() {
           onAdded={(q) => setQuestions([q, ...questions])}
         />
       )}
+      {related.length > 0 && (
+        <Box mt={4}>
+          <Typography variant="h6">Related products</Typography>
+          <Stack direction="row" spacing={2} mt={1} sx={{ overflowX: "auto" }}>
+            {related.map((item) => (
+              <Box key={item.product_id} component={Link} to={`/product/${item.product_id}`} sx={{ minWidth: 140 }}>
+                <img
+                  src={productImageFrom(item)}
+                  alt={item.name}
+                  width="140"
+                  height="140"
+                  loading="lazy"
+                />
+                <Typography>{item.name}</Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Box>
+      )}
+      <RecentlyViewed excludeId={product.product_id} />
     </Box>
   );
 }

@@ -10,6 +10,7 @@ import LandingProductCard from "../components/Landing/LandingProductCard";
 import SideBySide from "../components/Landing/SideBySide";
 import BrandStatement from "../components/Landing/BrandStatements";
 import Testimonials from "../components/Landing/Testimonials";
+import RecentlyViewed from "../components/RecentlyViewed";
 import { heroImages } from "../data/heroData";
 import { LandingService } from "../services/landing.service";
 
@@ -261,6 +262,7 @@ export default function LandingPage() {
           )}
         </section>
         <Testimonials />
+        <RecentlyViewed />
         <div className={styles.sectionSpacing}></div>
       </section>
     </>

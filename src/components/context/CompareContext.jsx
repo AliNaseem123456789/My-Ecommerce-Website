@@ -1,6 +1,5 @@
-import { createContext, useEffect, useState } from "react";
-
-export const CompareContext = createContext();
+import { useEffect, useState } from "react";
+import { CompareContext } from "./compare-context";
 
 const KEY = "compare_products";
 

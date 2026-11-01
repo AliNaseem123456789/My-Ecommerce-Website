@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -23,12 +23,9 @@ export default function CheckoutShipping({
   reopenSection,
 }) {
   const shippingOptions = options || [];
-  const [selectedMethod, setSelectedMethod] = useState(
-    shippingMethod?.code || shippingOptions[0]?.code || "",
-  );
-  useEffect(() => {
-    if (shippingMethod?.code) setSelectedMethod(shippingMethod.code);
-  }, [shippingMethod?.code]);
+  const [picked, setPicked] = useState(null);
+  const selectedMethod =
+    picked || shippingMethod?.code || shippingOptions[0]?.code || "";
 
   const handleContinue = () => {
     const selected = shippingOptions.find((opt) => opt.code === selectedMethod);
@@ -57,7 +54,7 @@ export default function CheckoutShipping({
             <FormControl component="fieldset" sx={{ width: "100%" }}>
               <RadioGroup
                 value={selectedMethod}
-                onChange={(e) => setSelectedMethod(e.target.value)}
+                onChange={(e) => setPicked(e.target.value)}
               >
                 {shippingOptions.map((option) => (
                   <Paper
