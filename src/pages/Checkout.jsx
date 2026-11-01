@@ -14,7 +14,6 @@ import CheckoutSummary from "../components/Checkout/CheckoutSummary";
 import CheckoutPromo from "../components/Checkout/CheckoutPromo";
 import StripePaymentForm from "../components/Checkout/StripePaymentForm";
 import CheckoutSavedAddresses from "../components/Checkout/CheckoutSavedAdresses";
-import { orderService } from "../services/orders.service";
 import { paymentsService } from "../services/payments.service";
 
 import paypal from "../assets/Logos/Paypal.jpeg";
@@ -26,7 +25,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function Checkout() {
   const { user } = useContext(AuthContext);
-  const { cartItems, clearCart } = useContext(CartContext);
+  const { cartItems, userId: cartUserId } = useContext(CartContext);
   const navigate = useNavigate();
 
   const [activeStep, setActiveStep] = useState(0);
@@ -62,6 +61,9 @@ export default function Checkout() {
   // Stripe specific states
   const [clientSecret, setClientSecret] = useState("");
   const [showStripeForm, setShowStripeForm] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [pendingOrderId, setPendingOrderId] = useState(null);
+  const [serverTotal, setServerTotal] = useState(null);
 
   // ✅ Calculate subtotal FIRST
   const subtotal = cartItems.reduce(
@@ -112,7 +114,7 @@ export default function Checkout() {
 
   // Setup Stripe Payment Intent
   const setupStripePayment = async () => {
-    if (!user?.id) {
+    if (!cartUserId) {
       showLoginAlert();
       return false;
     }
@@ -122,18 +124,52 @@ export default function Checkout() {
       return false;
     }
 
+    if (!selectedAddressId && !form.street) {
+      Swal.fire(
+        "Address Required",
+        "Select a saved address or enter a delivery address.",
+        "info",
+      );
+      return false;
+    }
+
     setLoading(true);
 
     try {
-      const response = await paymentsService.createPaymentIntent(totalAmount);
+      const payload = { userId: cartUserId };
+      if (selectedAddressId) {
+        payload.addressId = selectedAddressId;
+      } else {
+        payload.address = {
+          first_name: form.first_name,
+          last_name: form.last_name,
+          email: form.email,
+          phone: form.phone,
+          street: form.street,
+          apartment: form.apartment,
+          city: form.city,
+          state: form.state,
+          postal_code: form.postal_code,
+        };
+      }
+      const response = await paymentsService.createPaymentIntent(payload);
       setClientSecret(response.clientSecret);
+      setPendingOrderId(response.orderId);
+      setServerTotal(response.total);
       setShowStripeForm(true);
       return true;
     } catch (error) {
       console.error("Failed to setup payment:", error);
+      const data = error.response?.data;
+      const products = data?.products;
+      const message = Array.isArray(data?.message)
+        ? data.message.join(", ")
+        : data?.message;
       Swal.fire({
         title: "Payment Setup Failed",
-        text: "Could not initialize payment system. Please try again.",
+        text: products?.length
+          ? `Not enough stock: ${products.join(", ")}`
+          : message || "Could not initialize payment system. Please try again.",
         icon: "error",
       });
       return false;
@@ -172,64 +208,14 @@ export default function Checkout() {
 
   // Handle successful Stripe payment
   const handleStripeSuccess = async () => {
-    try {
-      const shippingPrice = shippingMethod?.price || 0;
-      const tax = subtotal * 0.1;
-      const totalWithTax = subtotal + shippingPrice + tax;
-
-      const orderPayload = {
-        userId: user.id,
-        subtotal: subtotal,
-        shipping: shippingPrice,
-        tax: tax,
-        total: totalWithTax,
-        form: {
-          first_name: form.first_name,
-          last_name: form.last_name,
-          email: form.email,
-          phone: form.phone,
-          street: form.street,
-          apartment: form.apartment || "",
-          city: form.city,
-          state: form.state,
-          postal_code: form.postal_code,
-        },
-        items: cartItems.map((item) => ({
-          products: {
-            product_id: item.products.id || item.products.product_id,
-            price: item.products.price,
-            name: item.products.name,
-          },
-          quantity: item.quantity,
-        })),
-        paymentMethod: "stripe",
-        paymentStatus: "paid",
-      };
-
-      const response = await orderService.placeOrder(orderPayload);
-      const orderData = response.data || response;
-
-      setOrderSuccess(orderData.order_id);
-
-      await Swal.fire({
-        title: "Payment Successful!",
-        text: `Your order #${orderData.order_id} has been placed successfully.`,
-        icon: "success",
-        confirmButtonColor: "#000",
-      });
-
-      clearCart();
-      navigate("/account");
-    } catch (error) {
-      console.error("Order creation failed:", error);
-      Swal.fire({
-        title: "Order Failed",
-        text:
-          error.response?.data?.message ||
-          "Payment was taken but order creation failed. Please contact support.",
-        icon: "error",
-      });
-    }
+    setOrderSuccess(pendingOrderId);
+    await Swal.fire({
+      title: "Payment Successful!",
+      text: `Your order #${pendingOrderId} has been placed successfully.`,
+      icon: "success",
+      confirmButtonColor: "#000",
+    });
+    navigate(`/order/${pendingOrderId}`);
   };
 
   const handleStripeError = (errorMessage) => {
@@ -297,6 +283,7 @@ export default function Checkout() {
           />
           <CheckoutSavedAddresses
             userId={user?.id}
+            onAddressSelected={setSelectedAddressId}
             initialFormData={form}
             onFormChange={(updatedForm) => setForm(updatedForm)}
             completed={completed}
@@ -322,7 +309,7 @@ export default function Checkout() {
             <Box sx={{ mt: 3, p: 3, bgcolor: "white", borderRadius: "8px" }}>
               <Elements stripe={stripePromise} options={{ clientSecret }}>
                 <StripePaymentForm
-                  amount={totalAmount}
+                  amount={serverTotal ?? totalAmount}
                   onSuccess={handleStripeSuccess}
                   onError={handleStripeError}
                 />

@@ -119,8 +119,11 @@ export default function CheckoutSavedAddresses({
       if (onFormChange) {
         onFormChange(selectedForm);
       }
+      if (onAddressSelected) {
+        onAddressSelected(address.id);
+      }
     },
-    [initialFormData, onFormChange],
+    [initialFormData, onFormChange, onAddressSelected],
   );
 
   const saveNewAddress = useCallback(async () => {
@@ -206,6 +209,7 @@ export default function CheckoutSavedAddresses({
           await fetchAddresses();
           if (selectedAddressId === addressId) {
             setSelectedAddressId(null);
+            if (onAddressSelected) onAddressSelected(null);
             const emptyForm = {
               first_name: "",
               last_name: "",
@@ -240,7 +244,7 @@ export default function CheckoutSavedAddresses({
         }
       }
     },
-    [userId, fetchAddresses, selectedAddressId, initialFormData, onFormChange],
+    [userId, fetchAddresses, selectedAddressId, initialFormData, onFormChange, onAddressSelected],
   );
   const getAddressIcon = (address) => {
     return <LocationOnIcon sx={{ color: "#e60023" }} />;
