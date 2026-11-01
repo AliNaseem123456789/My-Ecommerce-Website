@@ -161,6 +161,7 @@ function Navbar() {
                           alt={product.name}
                           width="40"
                           height="40"
+                          loading="lazy"
                           onError={(e) => {
                             e.target.onerror = null;
                             e.target.src =

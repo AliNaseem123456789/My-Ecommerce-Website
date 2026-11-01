@@ -14,6 +14,9 @@ export default function LandingProductCard({ product }) {
           <img
             src={displayedImage}
             alt={product.name}
+            width="300"
+            height="300"
+            loading="lazy"
             className="product-image"
             onError={(e) => {
               e.target.src = "https://via.placeholder.com/300";

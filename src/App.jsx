@@ -34,6 +34,7 @@ import Breadcrumbs from "./components/Breadcrumbs";
 import NotFoundPage from "./pages/NotFoundPage";
 import FAQ from "./pages/static/FAQ";
 import FloatingChat from "./components/FloatingChat";
+import RouteMeta from "./components/RouteMeta";
 
 function AppWrapper() {
   const { isSidebarOpen, closeSidebar } = useContext(CartContext);
@@ -88,6 +89,7 @@ function AppWrapper() {
 
   return (
     <>
+      <RouteMeta />
       {location.pathname !== "/" &&
         !location.pathname.startsWith("/products") && <Navbar />}
       {location.pathname !== "/" &&

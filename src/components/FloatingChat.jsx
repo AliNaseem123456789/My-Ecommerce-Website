@@ -670,7 +670,9 @@ const renderMessageWithProducts = (content, products) => {
                       <Box sx={{ mb: 1 }}>
                         <img
                           src={message.imageUrl || message.imagePreview}
-                          alt="Uploaded"
+                          alt="Uploaded attachment"
+                          width="240"
+                          height="150"
                           style={{
                             maxWidth: "100%",
                             borderRadius: 8,

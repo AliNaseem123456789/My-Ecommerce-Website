@@ -11,6 +11,9 @@ function ProductGallery({ images, selectedIndex, onSelect, name }) {
               key={i}
               src={img}
               alt={`${name} thumbnail ${i + 1}`}
+              width="64"
+              height="64"
+              loading="lazy"
               onClick={() => onSelect(i)}
               className={`${styles.thumb} ${
                 selectedIndex === i ? styles.thumbActive : ""
@@ -24,6 +27,9 @@ function ProductGallery({ images, selectedIndex, onSelect, name }) {
         <img
           src={images[selectedIndex]}
           alt={name}
+          width="500"
+          height="500"
+          loading="lazy"
           className={styles.mainImage}
         />
       </Paper>

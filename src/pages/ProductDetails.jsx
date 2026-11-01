@@ -4,6 +4,7 @@ import { AuthContext } from "../components/context/AuthContext";
 
 import { productService } from "../services/product.service";
 import { productImageFrom } from "../utils/productImage";
+import { Helmet } from "react-helmet-async";
 import { reviewService } from "../services/review.service";
 import { questionService } from "../services/question.service";
 
@@ -114,8 +115,57 @@ function ProductDetails() {
       </Typography>
     );
 
+  const site = "https://my-ecommerce-website-three.vercel.app";
+  const reviewCount = product.review_count ?? reviews.length;
+  const productJson = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || product.name,
+    image: productImageFrom(product),
+    sku: String(product.product_id),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "USD",
+      price: Number(product.price),
+      availability:
+        Number(product.stock) > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      url: `${site}/product/${product.product_id}`,
+    },
+  };
+  if (reviewCount > 0) {
+    productJson.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: Number(product.avg_rating) || 0,
+      reviewCount,
+    };
+  }
+  const crumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: `${site}/` },
+      { "@type": "ListItem", position: 2, name: "Shop", item: `${site}/shop` },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: product.name,
+        item: `${site}/product/${product.product_id}`,
+      },
+    ],
+  };
+
   return (
     <Box sx={{ maxWidth: 1300, mx: "auto", p: 3 }}>
+      <Helmet>
+        <title>{`${product.name} | Shop`}</title>
+        <meta name="description" content={product.description || product.name} />
+        <link rel="canonical" href={`${site}/product/${product.product_id}`} />
+        <script type="application/ld+json">{JSON.stringify(productJson)}</script>
+        <script type="application/ld+json">{JSON.stringify(crumbs)}</script>
+      </Helmet>
       <Breadcrumbs productName={product.name} />
 
       <Box sx={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
@@ -175,7 +225,7 @@ function ProductDetails() {
             sx={{ mt: 3, p: 2, textAlign: "center", border: "1px solid #eee" }}
             elevation={0}
           >
-            <img src={logo} width="220" alt="payments" />
+            <img src={logo} width="220" height="40" alt="Accepted payment cards" loading="lazy" />
             <Typography fontSize={14} color="gray">
               Guaranteed safe & secure checkout
             </Typography>

@@ -37,6 +37,9 @@ export default function CartSidebar({ onClose }) {
               <img
                 src={productImageFrom(item.products)}
                 alt={item.products.name}
+                width="72"
+                height="72"
+                loading="lazy"
                 className={styles.image}
               />
 

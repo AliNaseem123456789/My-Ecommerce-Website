@@ -5,6 +5,9 @@ export default function HeroBanner({ heroImages, currentHero, navigate, styles }
         <img
           key={index}
           src={img}
+          alt="Store hero"
+          width="1600"
+          height="700"
           style={{
             ...styles.heroImage,
             opacity: index === currentHero ? 1 : 0,

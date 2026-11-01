@@ -31,6 +31,9 @@ export default function Cart() {
               <img
                 src={productImageFrom(item.products)}
                 alt={item.products.name}
+                width="96"
+                height="96"
+                loading="lazy"
                 className={styles.productImage}
               />
               <div>

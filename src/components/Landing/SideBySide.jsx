@@ -7,7 +7,10 @@ export default function SideBySide() {
       <div className={styles.sideImageWrapper}>
         <img
           src={Glassbanner}
-          alt="side section"
+          alt="Featured collection"
+          width="800"
+          height="500"
+          loading="lazy"
           className={styles.sideImage}
         />
       </div>

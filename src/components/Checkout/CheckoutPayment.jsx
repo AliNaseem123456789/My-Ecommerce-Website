@@ -61,7 +61,10 @@ export default function CheckoutPayment({
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <img
                         src={logos.paypal}
-                        alt="paypal"
+                        alt="PayPal"
+                        width="64"
+                        height="22"
+                        loading="lazy"
                         style={{ height: 22 }}
                       />
                       Pay with PayPal
@@ -76,7 +79,10 @@ export default function CheckoutPayment({
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <img
                         src={logos.venmo}
-                        alt="venmo"
+                        alt="Venmo"
+                        width="64"
+                        height="22"
+                        loading="lazy"
                         style={{ height: 22 }}
                       />
                       Pay with Venmo
@@ -91,7 +97,10 @@ export default function CheckoutPayment({
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <img
                         src={logos.klarna}
-                        alt="klarna"
+                        alt="Klarna"
+                        width="64"
+                        height="22"
+                        loading="lazy"
                         style={{ height: 22 }}
                       />
                       Klarna
@@ -106,7 +115,10 @@ export default function CheckoutPayment({
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <img
                         src={logos.afterpay}
-                        alt="afterpay"
+                        alt="Afterpay"
+                        width="64"
+                        height="22"
+                        loading="lazy"
                         style={{ height: 22 }}
                       />
                       Afterpay

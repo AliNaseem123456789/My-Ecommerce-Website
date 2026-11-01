@@ -14,6 +14,9 @@ export default function HowItWorks() {
             <img
               src={step.image}
               alt={step.title}
+              width="240"
+              height="180"
+              loading="lazy"
               className={styles.howItWorksImage}
             />
 

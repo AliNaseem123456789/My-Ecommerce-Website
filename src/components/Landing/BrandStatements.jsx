@@ -18,7 +18,10 @@ export default function BrandStatement() {
       <div className={styles.brandImageWrapper}>
         <img
           src={mugbanner}
-          alt="brand statement"
+          alt="Brand statement"
+          width="800"
+          height="500"
+          loading="lazy"
           className={styles.brandImage}
         />
       </div>

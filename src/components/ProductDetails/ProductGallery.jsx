@@ -9,6 +9,10 @@ function ProductGallery({ images, selectedIndex, onSelect, name }) {
             <img
               key={i}
               src={img}
+              alt={`${name} thumbnail ${i + 1}`}
+              width="80"
+              height="80"
+              loading="lazy"
               onClick={() => onSelect(i)}
               style={{
                 width: 80,
@@ -29,6 +33,8 @@ function ProductGallery({ images, selectedIndex, onSelect, name }) {
         <img
           src={images[selectedIndex]}
           alt={name}
+          width="500"
+          height="500"
           style={{ width: "100%", maxWidth: 500, borderRadius: 14 }}
         />
       </Paper>

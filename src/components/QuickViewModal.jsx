@@ -69,6 +69,9 @@ export default function QuickViewModal({ product, onClose }) {
           <img
             src={productImageFrom(product)}
             alt={product.name}
+            width="400"
+            height="400"
+            loading="lazy"
             style={{
               width: "100%",
               height: "100%",
