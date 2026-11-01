@@ -58,8 +58,8 @@ export default function AuthModal({ onClose }) {
       }
       const data =
         mode === "login"
-          ? await AuthService.login(email, password)
-          : await AuthService.signup(name, email, password);
+          ? await AuthService.login(email, password, staySignedIn)
+          : await AuthService.signup(name, email, password, staySignedIn);
       await finish(data);
     } catch (err) {
       const message = err.response?.data?.message;

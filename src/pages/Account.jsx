@@ -9,6 +9,7 @@ import AddressesTab from "../components/Accountx/AddressesTab";
 import AccountDetailsTab from "../components/Accountx/AccountDetailsTab";
 import CompareTab from "../components/Accountx/CompareTab";
 import WishlistTab from "../components/Accountx/WishlistTab";
+import DevicesTab from "../components/Accountx/DevicesTab";
 
 export default function Account() {
   const { user, logout } = useContext(AuthContext);
@@ -69,6 +70,8 @@ export default function Account() {
         return <CompareTab />;
       case "wishlist":
         return <WishlistTab />;
+      case "devices":
+        return <DevicesTab />;
       default:
         return <DashboardTab />;
     }

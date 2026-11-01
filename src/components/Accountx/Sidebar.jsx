@@ -10,6 +10,7 @@ export default function Sidebar({ activeTab, setActiveTab, logout, user }) {
     "Account details",
     "Compare",
     "Wishlist",
+    "Devices",
   ];
   const displayName =
     user?.name ||

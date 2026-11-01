@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from "react";
 import apiClient from "../../api/apiClient";
+import { AuthService } from "../../services/auth.service";
 
 export const AuthContext = createContext();
 
@@ -37,9 +38,8 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
+  const logout = async () => {
+    await AuthService.logout();
     setUser(null);
   };
 

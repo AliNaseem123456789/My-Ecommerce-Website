@@ -1,14 +1,17 @@
 import apiClient from "../api/apiClient";
 
 export const AuthService = {
-  async signup(name, email, password) {
-    // Hits NestJS @Post('auth/signup')
-    return await apiClient.post("/auth/signup", { name, email, password });
+  async signup(name, email, password, staySignedIn) {
+    return await apiClient.post("/auth/signup", {
+      name,
+      email,
+      password,
+      staySignedIn,
+    });
   },
 
-  async login(email, password) {
-    // Hits NestJS @Post('auth/login')
-    return await apiClient.post("/auth/login", { email, password });
+  async login(email, password, staySignedIn) {
+    return await apiClient.post("/auth/login", { email, password, staySignedIn });
   },
 
   async forgotPassword(email) {
@@ -19,9 +22,16 @@ export const AuthService = {
     return await apiClient.post("/auth/reset-password", { token, password });
   },
 
-  logout() {
+  sessions: () => apiClient.get("/auth/sessions"),
+  revokeSession: (id) => apiClient.delete(`/auth/sessions/${id}`),
+
+  async logout() {
+    try {
+      await apiClient.post("/auth/logout");
+    } catch {
+      /* the access token may already be gone */
+    }
     localStorage.removeItem("token");
     sessionStorage.removeItem("token");
-    window.location.reload();
   },
 };
