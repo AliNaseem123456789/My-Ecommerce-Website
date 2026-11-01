@@ -125,6 +125,20 @@ export default function AddressesTab() {
                 <p className="address-meta">
                   {data.phone} | {data.email}
                 </p>
+                {data.is_default ? (
+                  <p>Default address</p>
+                ) : (
+                  <button
+                    type="button"
+                    className="edit-btn"
+                    onClick={async () => {
+                      await addressService.setDefault(data.id);
+                      await loadAddresses();
+                    }}
+                  >
+                    Set as default
+                  </button>
+                )}
               </>
             ) : (
               <p className="no-address">No address provided.</p>

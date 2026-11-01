@@ -15,6 +15,7 @@ export default function CheckoutSummary({
   cartItems,
   subtotal,
   shippingMethod,
+  discount,
   loading,
   placeOrder,
 }) {
@@ -54,6 +55,15 @@ export default function CheckoutSummary({
         <Typography sx={{ fontWeight: 700 }}>${subtotal.toFixed(2)}</Typography>
       </Box>
 
+      {discount > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography>Discount</Typography>
+          <Typography sx={{ fontWeight: 700 }}>
+            −${Number(discount).toFixed(2)}
+          </Typography>
+        </Box>
+      )}
+
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography>Shipping</Typography>
         <Typography sx={{ fontWeight: 700 }}>
@@ -66,7 +76,7 @@ export default function CheckoutSummary({
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <Typography sx={{ fontWeight: 800 }}>Estimated Total</Typography>
         <Typography sx={{ fontWeight: 800 }}>
-          ${(subtotal + shippingMethod.price).toFixed(2)}
+          ${(subtotal - (discount || 0) + shippingMethod.price).toFixed(2)}
         </Typography>
       </Box>
     </Paper>

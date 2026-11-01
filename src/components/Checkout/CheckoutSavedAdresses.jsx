@@ -71,13 +71,32 @@ export default function CheckoutSavedAddresses({
       const response = await apiClient.get(
         `/account/addresses/${userId}?type=shipping`,
       );
-      setSavedAddresses(response || []);
+      const rows = response || [];
+      setSavedAddresses(rows);
+      const preferred = rows.find((address) => address.is_default);
+      if (preferred) {
+        setSelectedAddressId(preferred.id);
+        const selectedForm = {
+          first_name: preferred.first_name || "",
+          last_name: preferred.last_name || "",
+          email: preferred.email || initialFormData?.email || "",
+          phone: preferred.phone || "",
+          street: preferred.street || "",
+          apartment: preferred.apartment || "",
+          city: preferred.city || "",
+          state: preferred.state || "",
+          postal_code: preferred.postal_code || "",
+        };
+        setLocalForm((prev) => ({ ...prev, ...selectedForm }));
+        if (onFormChange) onFormChange(selectedForm);
+        if (onAddressSelected) onAddressSelected(preferred.id);
+      }
     } catch (error) {
       console.error("Error fetching addresses:", error);
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, initialFormData?.email, onAddressSelected, onFormChange]);
 
   useEffect(() => {
     if (userId) {

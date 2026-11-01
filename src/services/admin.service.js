@@ -18,4 +18,8 @@ export const adminService = {
   questions: () => apiClient.get("/admin/questions"),
   answerQuestion: (id, answer) =>
     apiClient.post(`/admin/questions/${id}/answer`, { answer }),
+  coupons: () => apiClient.get("/admin/coupons"),
+  createCoupon: (body) => apiClient.post("/admin/coupons", body),
+  updateCoupon: (id, body) => apiClient.patch(`/admin/coupons/${id}`, body),
+  deleteCoupon: (id) => apiClient.delete(`/admin/coupons/${id}`),
 };

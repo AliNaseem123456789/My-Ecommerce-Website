@@ -28,6 +28,12 @@ export default function Admin() {
   const [reviews, setReviews] = useState([]);
   const [questions, setQuestions] = useState([]);
   const [answerDrafts, setAnswerDrafts] = useState({});
+  const [coupons, setCoupons] = useState([]);
+  const [couponForm, setCouponForm] = useState({
+    code: "",
+    type: "percent",
+    value: "",
+  });
   const [statusFilter, setStatusFilter] = useState("");
   const [form, setForm] = useState({ name: "", price: "", stock: "", description: "" });
   const [editing, setEditing] = useState(null);
@@ -35,7 +41,7 @@ export default function Admin() {
 
   const load = async () => {
     try {
-      const [counts, catalog, orderRows, people, reviewRows, questionRows] =
+      const [counts, catalog, orderRows, people, reviewRows, questionRows, couponRows] =
         await Promise.all([
           adminService.summary(),
           adminService.products(),
@@ -43,6 +49,7 @@ export default function Admin() {
           adminService.customers(),
           adminService.reviews(),
           adminService.questions(),
+          adminService.coupons(),
         ]);
       setSummary(counts);
       setProducts(catalog || []);
@@ -50,6 +57,7 @@ export default function Admin() {
       setCustomers(people || []);
       setReviews(reviewRows || []);
       setQuestions(questionRows || []);
+      setCoupons(couponRows || []);
     } catch (err) {
       setError(err.response?.data?.message || "Admin data could not be loaded.");
     }
@@ -91,6 +99,7 @@ export default function Admin() {
         <Tab label="Customers" />
         <Tab label="Reviews" />
         <Tab label="Q&A" />
+        <Tab label="Coupons" />
       </Tabs>
 
       {tab === 0 && summary && (
@@ -254,6 +263,50 @@ export default function Admin() {
                   Answer
                 </Button>
               </Box>
+            </Box>
+          ))}
+        </Box>
+      )}
+
+      {tab === 6 && (
+        <Box mt={3}>
+          <Box
+            component="form"
+            display="flex"
+            gap={1}
+            mb={2}
+            onSubmit={async (event) => {
+              event.preventDefault();
+              await adminService.createCoupon({
+                code: couponForm.code,
+                type: couponForm.type,
+                value: Number(couponForm.value),
+              });
+              setCouponForm({ code: "", type: "percent", value: "" });
+              load();
+            }}
+          >
+            <TextField size="small" label="Code" value={couponForm.code} onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value })} required />
+            <TextField select size="small" label="Type" value={couponForm.type} onChange={(e) => setCouponForm({ ...couponForm, type: e.target.value })}>
+              <MenuItem value="percent">percent</MenuItem>
+              <MenuItem value="fixed">fixed</MenuItem>
+            </TextField>
+            <TextField size="small" label="Value" type="number" value={couponForm.value} onChange={(e) => setCouponForm({ ...couponForm, value: e.target.value })} required />
+            <Button type="submit" variant="contained">Create</Button>
+          </Box>
+          {coupons.map((coupon) => (
+            <Box key={coupon.id} display="flex" gap={2} alignItems="center" py={1} borderBottom="1px solid #eee">
+              <Typography sx={{ flex: 1 }}>
+                {coupon.code} · {coupon.type} {coupon.value} · {coupon.redemption_count} used
+              </Typography>
+              <Button size="small" onClick={async () => {
+                await adminService.updateCoupon(coupon.id, { active: !coupon.active });
+                load();
+              }}>{coupon.active ? "Deactivate" : "Activate"}</Button>
+              <Button size="small" color="error" onClick={async () => {
+                await adminService.deleteCoupon(coupon.id);
+                load();
+              }}>Delete</Button>
             </Box>
           ))}
         </Box>

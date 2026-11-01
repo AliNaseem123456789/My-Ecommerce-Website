@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -14,42 +14,24 @@ import {
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 
 export default function CheckoutShipping({
+  options,
   shippingMethod,
   setShippingMethod,
   completed,
   activeStep,
   saveShippingContinue,
   reopenSection,
-  cartItems,
 }) {
-  const shippingOptions = [
-    {
-      id: "standard",
-      title: "Standard Shipping",
-      price: 6.95,
-      eta: "Delivery By Thu, Dec 11",
-      days: "5-7 business days",
-    },
-    {
-      id: "express",
-      title: "Express Shipping",
-      price: 15.95,
-      eta: "Delivery By Tue, Dec 9",
-      days: "2-3 business days",
-    },
-    {
-      id: "overnight",
-      title: "Overnight Shipping",
-      price: 25.95,
-      eta: "Delivery By Tomorrow",
-      days: "1 business day",
-    },
-  ];
-
-  const [selectedMethod, setSelectedMethod] = useState(shippingMethod.id);
+  const shippingOptions = options || [];
+  const [selectedMethod, setSelectedMethod] = useState(
+    shippingMethod?.code || shippingOptions[0]?.code || "",
+  );
+  useEffect(() => {
+    if (shippingMethod?.code) setSelectedMethod(shippingMethod.code);
+  }, [shippingMethod?.code]);
 
   const handleContinue = () => {
-    const selected = shippingOptions.find((opt) => opt.id === selectedMethod);
+    const selected = shippingOptions.find((opt) => opt.code === selectedMethod);
     if (selected && setShippingMethod) {
       setShippingMethod(selected);
     }
@@ -79,19 +61,19 @@ export default function CheckoutShipping({
               >
                 {shippingOptions.map((option) => (
                   <Paper
-                    key={option.id}
+                    key={option.code}
                     variant="outlined"
                     sx={{
                       p: 2,
                       mb: 2,
                       borderColor:
-                        selectedMethod === option.id ? "#e60023" : "#e0e0e0",
+                        selectedMethod === option.code ? "#e60023" : "#e0e0e0",
                       bgcolor:
-                        selectedMethod === option.id ? "#fff5f5" : "white",
+                        selectedMethod === option.code ? "#fff5f5" : "white",
                     }}
                   >
                     <FormControlLabel
-                      value={option.id}
+                      value={option.code}
                       control={<Radio />}
                       label={
                         <Box sx={{ width: "100%" }}>
@@ -104,7 +86,9 @@ export default function CheckoutShipping({
                                 {option.title}
                               </Typography>
                               <Typography sx={{ color: "#666", fontSize: 12 }}>
-                                {option.days}
+                                {option.min_days === option.max_days
+                                  ? `${option.min_days} day`
+                                  : `${option.min_days}–${option.max_days} days`}
                               </Typography>
                               <Typography
                                 sx={{ color: "green", fontSize: 13, mt: 0.5 }}
@@ -157,14 +141,14 @@ export default function CheckoutShipping({
           >
             <div>
               <Typography sx={{ fontWeight: 700 }}>
-                {shippingMethod.title}
+                {shippingMethod?.title}
               </Typography>
               <Typography sx={{ color: "green", fontSize: 13 }}>
-                {shippingMethod.eta}
+                {shippingMethod?.eta}
               </Typography>
             </div>
             <Typography sx={{ fontWeight: "bold" }}>
-              ${shippingMethod.price.toFixed(2)}
+              ${Number(shippingMethod?.price || 0).toFixed(2)}
             </Typography>
           </Box>
 

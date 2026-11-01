@@ -17,6 +17,7 @@ import CheckoutSavedAddresses from "../components/Checkout/CheckoutSavedAdresses
 import CheckoutGuest from "../components/Checkout/CheckoutGuest";
 import AuthModal from "../components/AuthModal";
 import { paymentsService } from "../services/payments.service";
+import { couponService, shippingService } from "../services/coupon.service";
 import { productImageFrom } from "../utils/productImage";
 
 import paypal from "../assets/Logos/Paypal.jpeg";
@@ -69,32 +70,47 @@ export default function Checkout() {
   const [serverTotal, setServerTotal] = useState(null);
   const [guestStarted, setGuestStarted] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [shippingOptions, setShippingOptions] = useState([]);
+  const [shippingMethod, setShippingMethod] = useState(null);
+  const [promo, setPromo] = useState(null);
+  const [promoMessage, setPromoMessage] = useState("");
 
-  // ✅ Calculate subtotal FIRST
   const subtotal = cartItems.reduce(
-    (sum, item) => sum + item.products.price * item.quantity,
+    (sum, item) => sum + Number(item.products.price) * item.quantity,
     0,
   );
 
-  // ✅ THEN define shipping options based on subtotal
-  const getShippingOptions = () => {
-    const standardPrice = subtotal > 100 ? 0 : 6.95;
-    return {
-      id: "standard",
-      title: subtotal > 100 ? "Free Shipping" : "Standard Shipping",
-      price: standardPrice,
-      eta: "Delivery By Thu, Dec 11",
-    };
-  };
+  const estimate = (days) =>
+    new Date(Date.now() + days * 86400000).toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
 
-  const [shippingMethod, setShippingMethod] = useState(getShippingOptions());
-
-  // ✅ Update shipping options when subtotal changes (e.g., cart updates)
   useEffect(() => {
-    setShippingMethod(getShippingOptions());
+    shippingService.list().then((rows) => {
+      const priced = (rows || []).map((option) => {
+        const free =
+          option.free_over != null && subtotal >= Number(option.free_over);
+        return {
+          ...option,
+          price: free ? 0 : Number(option.price),
+          eta:
+            option.min_days === option.max_days
+              ? `Delivery by ${estimate(option.min_days)}`
+              : `Delivery ${estimate(option.min_days)} – ${estimate(option.max_days)}`,
+        };
+      });
+      setShippingOptions(priced);
+      setShippingMethod((current) => {
+        const match = priced.find((option) => option.code === current?.code);
+        return match || priced[0] || null;
+      });
+    }).catch(() => setShippingOptions([]));
   }, [subtotal]);
 
-  const totalAmount = subtotal + (shippingMethod?.price || 0);
+  const totalAmount =
+    subtotal - (promo?.discount || 0) + (shippingMethod?.price || 0);
 
   useEffect(() => {
     if (user?.email) {
@@ -141,7 +157,11 @@ export default function Checkout() {
     setLoading(true);
 
     try {
-      const payload = { userId: cartUserId };
+      const payload = {
+        userId: cartUserId,
+        shippingCode: shippingMethod?.code,
+      };
+      if (promo?.code) payload.couponCode = promo.code;
       if (selectedAddressId) {
         payload.addressId = selectedAddressId;
       } else {
@@ -161,6 +181,9 @@ export default function Checkout() {
       setClientSecret(response.clientSecret);
       setPendingOrderId(response.orderId);
       setServerTotal(response.total);
+      if (response.discount != null && promo?.code) {
+        setPromo({ code: promo.code, discount: Number(response.discount) });
+      }
       setShowStripeForm(true);
       return true;
     } catch (error) {
@@ -298,6 +321,7 @@ export default function Checkout() {
 
           {/* Step 2: Shipping Method */}
           <CheckoutShipping
+            options={shippingOptions}
             shippingMethod={shippingMethod}
             setShippingMethod={setShippingMethod}
             completed={completed}
@@ -351,7 +375,8 @@ export default function Checkout() {
               image: productImageFrom(item.products),
             }))}
             subtotal={subtotal}
-            shippingMethod={shippingMethod}
+            shippingMethod={shippingMethod || { price: 0, title: "Shipping" }}
+            discount={promo?.discount || 0}
             loading={loading}
             placeOrder={savePayment}
           />
@@ -371,7 +396,34 @@ export default function Checkout() {
             </Box>
           )}
 
-          <CheckoutPromo />
+          <CheckoutPromo
+            applied={promo}
+            message={promoMessage}
+            onApply={async (code) => {
+              try {
+                const result = await couponService.validate(code, cartUserId);
+                if (!result.valid) {
+                  setPromo(null);
+                  setPromoMessage(result.message || "That code is not valid.");
+                  return;
+                }
+                setPromo({ code: code.trim().toUpperCase(), discount: result.discount });
+                setPromoMessage(result.message);
+                setShowStripeForm(false);
+                setClientSecret("");
+              } catch (error) {
+                setPromoMessage(
+                  error.response?.data?.message || "Could not check that code.",
+                );
+              }
+            }}
+            onRemove={() => {
+              setPromo(null);
+              setPromoMessage("");
+              setShowStripeForm(false);
+              setClientSecret("");
+            }}
+          />
         </Grid>
         </>
         )}
