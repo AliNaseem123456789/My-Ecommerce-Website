@@ -11,6 +11,8 @@ import MobileSearch from "./components/MobileSearch";
 import SearchResults from "./pages/SearchResults";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import ResetPassword from "./pages/ResetPassword";
+import Admin from "./pages/Admin";
+import TrackOrder from "./pages/TrackOrder";
 import { AuthProvider } from "./components/context/AuthContext";
 import AboutUs from "./pages/static/AboutUs";
 import PrivacyPolicy from "./pages/static/PrivacyPolicy";
@@ -121,7 +123,15 @@ function AppWrapper() {
           path="/track-order"
           element={
             <ProtectedRoute>
-              <Account />
+              <TrackOrder />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Admin />
             </ProtectedRoute>
           }
         />
