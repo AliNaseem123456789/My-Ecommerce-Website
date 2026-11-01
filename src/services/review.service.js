@@ -11,4 +11,12 @@ export const reviewService = {
   getReviews: async (productId) => {
     return await apiClient.get(`/reviews/${productId}`);
   },
+
+  updateReview: async (reviewId, formData) => {
+    return await apiClient.patch(`/reviews/${reviewId}`, formData);
+  },
+
+  deleteReview: async (reviewId) => {
+    return await apiClient.delete(`/reviews/${reviewId}`);
+  },
 };

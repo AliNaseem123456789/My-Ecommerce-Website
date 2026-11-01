@@ -25,6 +25,9 @@ export default function Admin() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [answerDrafts, setAnswerDrafts] = useState({});
   const [statusFilter, setStatusFilter] = useState("");
   const [form, setForm] = useState({ name: "", price: "", stock: "", description: "" });
   const [editing, setEditing] = useState(null);
@@ -32,16 +35,21 @@ export default function Admin() {
 
   const load = async () => {
     try {
-      const [counts, catalog, orderRows, people] = await Promise.all([
-        adminService.summary(),
-        adminService.products(),
-        adminService.orders(statusFilter),
-        adminService.customers(),
-      ]);
+      const [counts, catalog, orderRows, people, reviewRows, questionRows] =
+        await Promise.all([
+          adminService.summary(),
+          adminService.products(),
+          adminService.orders(statusFilter),
+          adminService.customers(),
+          adminService.reviews(),
+          adminService.questions(),
+        ]);
       setSummary(counts);
       setProducts(catalog || []);
       setOrders(orderRows || []);
       setCustomers(people || []);
+      setReviews(reviewRows || []);
+      setQuestions(questionRows || []);
     } catch (err) {
       setError(err.response?.data?.message || "Admin data could not be loaded.");
     }
@@ -81,6 +89,8 @@ export default function Admin() {
         <Tab label="Products" />
         <Tab label="Orders" />
         <Tab label="Customers" />
+        <Tab label="Reviews" />
+        <Tab label="Q&A" />
       </Tabs>
 
       {tab === 0 && summary && (
@@ -177,6 +187,74 @@ export default function Admin() {
             <Typography key={customer.id} py={0.5}>
               {customer.name} · {customer.email} · {customer.role}
             </Typography>
+          ))}
+        </Box>
+      )}
+
+      {tab === 4 && (
+        <Box mt={3}>
+          {reviews.map((review) => (
+            <Box key={review.review_id} py={1} borderBottom="1px solid #eee">
+              <Typography>
+                {review.products?.name} · {review.name} · {review.rating}
+                {review.verified ? " · verified" : ""}
+              </Typography>
+              <Typography>{review.title}: {review.review}</Typography>
+              <Button
+                size="small"
+                color="error"
+                onClick={async () => {
+                  await adminService.deleteReview(review.review_id);
+                  load();
+                }}
+              >
+                Delete
+              </Button>
+            </Box>
+          ))}
+        </Box>
+      )}
+
+      {tab === 5 && (
+        <Box mt={3}>
+          {questions.map((question) => (
+            <Box key={question.question_id} py={1} borderBottom="1px solid #eee">
+              <Typography fontWeight={700}>
+                {question.products?.name} · {question.name} · {question.email}
+              </Typography>
+              <Typography>{question.question}</Typography>
+              {(question.product_answers || []).map((answer) => (
+                <Typography key={answer.id} color="text.secondary">
+                  Answer: {answer.answer}
+                </Typography>
+              ))}
+              <Box display="flex" gap={1} mt={1}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  placeholder="Write an answer"
+                  value={answerDrafts[question.question_id] || ""}
+                  onChange={(event) =>
+                    setAnswerDrafts({
+                      ...answerDrafts,
+                      [question.question_id]: event.target.value,
+                    })
+                  }
+                />
+                <Button
+                  variant="contained"
+                  onClick={async () => {
+                    const answer = answerDrafts[question.question_id];
+                    if (!answer) return;
+                    await adminService.answerQuestion(question.question_id, answer);
+                    setAnswerDrafts({ ...answerDrafts, [question.question_id]: "" });
+                    load();
+                  }}
+                >
+                  Answer
+                </Button>
+              </Box>
+            </Box>
           ))}
         </Box>
       )}

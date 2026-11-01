@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { reviewService } from "../services/review.service";
 import styles from "../styles/components.module.css";
 
-export default function ReviewModal({ productId, onClose, onAdded }) {
+export default function ReviewModal({ productId, onClose, onAdded, existing }) {
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    title: "",
-    review: "",
-    rating: 5,
+    name: existing?.name || "",
+    email: existing?.email || "",
+    title: existing?.title || "",
+    review: existing?.review || "",
+    rating: existing?.rating || 5,
   });
   const [loading, setLoading] = useState(false);
   const handleChange = (e) => {
@@ -18,7 +18,9 @@ export default function ReviewModal({ productId, onClose, onAdded }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await reviewService.submitReview(productId, form);
+      const data = existing
+        ? await reviewService.updateReview(existing.review_id, form)
+        : await reviewService.submitReview(productId, form);
       onAdded(data);
       onClose();
     } catch (error) {
@@ -32,7 +34,9 @@ export default function ReviewModal({ productId, onClose, onAdded }) {
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <h2 className={styles.modalTitle}>Write a Review</h2>
+        <h2 className={styles.modalTitle}>
+          {existing ? "Edit your review" : "Write a Review"}
+        </h2>
 
         <form onSubmit={handleSubmit}>
           <input

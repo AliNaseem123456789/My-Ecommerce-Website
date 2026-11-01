@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { AuthContext } from "../components/context/AuthContext";
 
 import { productService } from "../services/product.service";
 import { productImageFrom } from "../utils/productImage";
@@ -24,11 +25,13 @@ import {
   Rating,
   Stack,
   Button,
+  Chip,
   CircularProgress,
 } from "@mui/material";
 
 function ProductDetails() {
   const { id } = useParams();
+  const { user } = useContext(AuthContext);
 
   const [product, setProduct] = useState(null);
   const [productImages, setProductImages] = useState([]);
@@ -38,6 +41,7 @@ function ProductDetails() {
   const [questions, setQuestions] = useState([]);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [error, setError] = useState("");
@@ -136,7 +140,9 @@ function ProductDetails() {
 
           <Stack direction="row" spacing={1} alignItems="center" mt={1}>
             <Rating value={Number(product.avg_rating) || 0} readOnly />
-            <Typography>({reviews.length} reviews)</Typography>
+            <Typography>
+              ({product.review_count ?? reviews.length} reviews)
+            </Typography>
           </Stack>
 
           <LiveViewers />
@@ -191,7 +197,10 @@ function ProductDetails() {
           <Box mt={2}>
             <Button
               variant="contained"
-              onClick={() => setShowReviewModal(true)}
+              onClick={() => {
+                setEditingReview(null);
+                setShowReviewModal(true);
+              }}
             >
               Write a Review
             </Button>
@@ -209,8 +218,41 @@ function ProductDetails() {
                     </Stack>
                     <Typography variant="body2" color="text.secondary">
                       {r.name}
+                      {r.verified ? (
+                        <Chip
+                          label="Verified purchase"
+                          size="small"
+                          color="success"
+                          sx={{ ml: 1 }}
+                        />
+                      ) : null}
                     </Typography>
                     <Typography mt={1}>{r.review}</Typography>
+                    {user?.id && r.user_id === user.id ? (
+                      <Stack direction="row" spacing={1} mt={1}>
+                        <Button
+                          size="small"
+                          onClick={() => {
+                            setEditingReview(r);
+                            setShowReviewModal(true);
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={async () => {
+                            await reviewService.deleteReview(r.review_id);
+                            setReviews(
+                              reviews.filter((row) => row.review_id !== r.review_id),
+                            );
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </Stack>
+                    ) : null}
                   </Paper>
                 ))
               ) : (
@@ -238,8 +280,9 @@ function ProductDetails() {
                   >
                     <Typography fontWeight={700}>{q.name} asks:</Typography>
                     <Typography mt={1}>{q.question}</Typography>
-                    {q.answer && (
+                    {(q.product_answers || []).map((answer) => (
                       <Box
+                        key={answer.id}
                         sx={{
                           mt: 2,
                           p: 2,
@@ -250,9 +293,9 @@ function ProductDetails() {
                         <Typography variant="body2" fontWeight={600}>
                           Support Team:
                         </Typography>
-                        <Typography variant="body2">{q.answer}</Typography>
+                        <Typography variant="body2">{answer.answer}</Typography>
                       </Box>
-                    )}
+                    ))}
                   </Paper>
                 ))
               ) : (
@@ -267,8 +310,20 @@ function ProductDetails() {
       {showReviewModal && (
         <ReviewModal
           productId={id}
-          onClose={() => setShowReviewModal(false)}
-          onAdded={(r) => setReviews([r, ...reviews])}
+          existing={editingReview}
+          onClose={() => {
+            setShowReviewModal(false);
+            setEditingReview(null);
+          }}
+          onAdded={(r) =>
+            setReviews(
+              editingReview
+                ? reviews.map((row) =>
+                    row.review_id === r.review_id ? r : row,
+                  )
+                : [r, ...reviews],
+            )
+          }
         />
       )}
 
