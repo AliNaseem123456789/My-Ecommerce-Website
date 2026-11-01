@@ -16,6 +16,7 @@ import {
   Pagination,
 } from "@mui/material";
 import { searchService } from "../services/search.service";
+import { productImageFrom } from "../utils/productImage";
 import AddToCartButton from "../components/ProductDetails/AddToCartButton";
 
 export default function SearchResults() {
@@ -35,6 +36,7 @@ export default function SearchResults() {
   });
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState("");
 
   const sortOptions = [
     { value: "relevance", label: "Relevance" },
@@ -52,13 +54,15 @@ export default function SearchResults() {
     }
 
     setLoading(true);
+    setError("");
     try {
       const results = await searchService.searchProducts(query, filters);
       setProducts(results || []);
       setTotalPages(Math.ceil((results?.length || 0) / 12));
-    } catch (error) {
-      console.error("Search failed:", error);
+    } catch (err) {
+      console.error("Search failed:", err);
       setProducts([]);
+      setError("Search is unavailable right now. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -177,6 +181,10 @@ export default function SearchResults() {
         <Box display="flex" justifyContent="center" py={8}>
           <CircularProgress />
         </Box>
+      ) : error ? (
+        <Box textAlign="center" py={8}>
+          <Typography variant="h6">{error}</Typography>
+        </Box>
       ) : products.length === 0 ? (
         <Box textAlign="center" py={8}>
           <Typography variant="h6" color="text.secondary">
@@ -193,7 +201,7 @@ export default function SearchResults() {
           </Typography>
 
           <Grid container spacing={3}>
-            {products.map((product) => (
+            {products.slice((page - 1) * 12, page * 12).map((product) => (
               <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={product.product_id}>
                 <Card
                   sx={{
@@ -208,7 +216,7 @@ export default function SearchResults() {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={product.image_url || "/placeholder.jpg"}
+                    image={productImageFrom(product)}
                     alt={product.name}
                     sx={{ objectFit: "cover" }}
                   />

@@ -5,7 +5,7 @@ import { AuthContext } from "../components/context/AuthContext";
 import apiClient from "../api/apiClient";
 import { X } from "lucide-react";
 import styles from "../styles/wishlist.module.css";
-import { productPrimaryImage } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 
 export default function Wishlist() {
   const { user, loading: authLoading } = useContext(AuthContext);
@@ -80,7 +80,7 @@ export default function Wishlist() {
                   <X size={18} />
                 </button>
                 <img
-                  src={productPrimaryImage(product.product_id)}
+                  src={productImageFrom(product)}
                   alt={product.name}
                   className={styles.image}
                 />

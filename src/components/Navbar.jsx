@@ -26,7 +26,7 @@ import CartSidebar from "../components/CartSidebar";
 import AuthModal from "../components/AuthModal";
 import styles from "../styles/Navbar.module.css";
 import { searchService } from "../services/search.service";
-import { productPrimaryImage } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 import { debounce } from "lodash";
 import { CategoriesService } from "../services/categories.service";
 
@@ -117,7 +117,7 @@ function Navbar() {
     else setCartOpen(true);
   };
 
-  const getProductImageUrl = (productId) => productPrimaryImage(productId);
+  const getProductImageUrl = (product) => productImageFrom(product);
   return (
     <div className={styles.navbar}>
       {!isMobile && (
@@ -157,7 +157,7 @@ function Navbar() {
                         }
                       >
                         <img
-                          src={getProductImageUrl(product.product_id)}
+                          src={getProductImageUrl(product)}
                           alt={product.name}
                           width="40"
                           height="40"

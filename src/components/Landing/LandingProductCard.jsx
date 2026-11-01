@@ -1,22 +1,14 @@
-import React, { useState, useMemo } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import "../../styles/LandingProduct.css";
-import { productImages } from "../../utils/productImage";
+import { productImageFrom } from "../../utils/productImage";
 
 export default function LandingProductCard({ product }) {
-  const [isHovered, setIsHovered] = useState(false);
   const id = product.product_id;
-
-  const images = useMemo(() => productImages(id), [id]);
-
-  const displayedImage = isHovered && images.length > 1 ? images[1] : images[0];
+  const displayedImage = productImageFrom(product);
 
   return (
-    <div
-      className="product-card"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <div className="product-card">
       <Link to={`/product/${id}`} className="product-link">
         <div className="product-image-container">
           <img

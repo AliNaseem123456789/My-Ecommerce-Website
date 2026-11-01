@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useLocation } from "react-router-dom";
-import { Box, Typography, Select, MenuItem } from "@mui/material";
+import { Box, Typography, Select, MenuItem, TextField, Pagination, CircularProgress } from "@mui/material";
 
 import ProductCard from "../components/ProductCard";
 import CategoryFilter from "../components/CategoryFilter";
@@ -32,6 +32,13 @@ function Shop() {
 
   const [grid, setGrid] = useState(3);
   const [sort, setSort] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [limit, setLimit] = useState(12);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
@@ -39,29 +46,48 @@ function Shop() {
   }, []);
 
   useEffect(() => {
-    if (categories.length) loadProducts();
-  }, [categories, selectedCategories, sort]);
+    loadProducts();
+  }, [selectedCategories, sort, minPrice, maxPrice, page, categories]);
 
   const loadCategories = async () => {
-    const data = await ShopService.getCategories();
-    setCategories(data || []);
+    try {
+      const data = await ShopService.getCategories();
+      setCategories(data || []);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const loadProducts = async () => {
-    const data = await ShopService.getProducts({
-      categories: selectedCategories,
-      sort,
-    });
-
-    const extended = (data || []).map((p) => {
-      const category = categories.find((c) => c.category_id === p.category_id);
-      return {
-        ...p,
-        categoryName: category?.name || "Uncategorized",
-      };
-    });
-
-    setProducts(extended);
+    setLoading(true);
+    setError("");
+    try {
+      const data = await ShopService.getProducts({
+        categories: selectedCategories,
+        sort,
+        minPrice,
+        maxPrice,
+        page,
+        limit: 12,
+      });
+      const extended = (data?.items || []).map((p) => {
+        const category = categories.find((c) => c.category_id === p.category_id);
+        return {
+          ...p,
+          categoryName: category?.name || "Uncategorized",
+        };
+      });
+      setProducts(extended);
+      setTotal(data?.total || 0);
+      setLimit(data?.limit || 12);
+    } catch (err) {
+      console.error(err);
+      setProducts([]);
+      setTotal(0);
+      setError("Products could not be loaded. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -110,35 +136,87 @@ function Shop() {
             alignItems="center"
             mb={3}
           >
-            <Typography>Showing {products.length} results</Typography>
+            <Typography>
+              {loading ? "Loading products..." : `Showing ${products.length} of ${total} results`}
+            </Typography>
 
-            <Select
-              size="small"
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-            >
-              <MenuItem value="">Default</MenuItem>
-              <MenuItem value="price_asc">Price Low → High</MenuItem>
-              <MenuItem value="price_desc">Price High → Low</MenuItem>
-              <MenuItem value="rating">Top Rating</MenuItem>
-            </Select>
-          </Box>
-          <Box
-            display="grid"
-            gridTemplateColumns={
-              grid === "list" ? "1fr" : `repeat(${grid}, 1fr)`
-            }
-            gap={3}
-          >
-            {products.map((p) => (
-              <ProductCard
-                key={p.product_id}
-                product={p}
-                addToCart={addToCart}
-                onQuickView={setQuickViewProduct}
+            <Box display="flex" gap={1} alignItems="center">
+              <TextField
+                size="small"
+                label="Min"
+                type="number"
+                value={minPrice}
+                onChange={(e) => {
+                  setPage(1);
+                  setMinPrice(e.target.value);
+                }}
+                sx={{ width: 90 }}
               />
-            ))}
+              <TextField
+                size="small"
+                label="Max"
+                type="number"
+                value={maxPrice}
+                onChange={(e) => {
+                  setPage(1);
+                  setMaxPrice(e.target.value);
+                }}
+                sx={{ width: 90 }}
+              />
+              <Select
+                size="small"
+                value={sort}
+                onChange={(e) => {
+                  setPage(1);
+                  setSort(e.target.value);
+                }}
+              >
+                <MenuItem value="">Default</MenuItem>
+                <MenuItem value="price_asc">Price Low → High</MenuItem>
+                <MenuItem value="price_desc">Price High → Low</MenuItem>
+                <MenuItem value="rating">Top Rating</MenuItem>
+              </Select>
+            </Box>
           </Box>
+          {loading ? (
+            <Box display="flex" justifyContent="center" py={8}>
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Typography textAlign="center" py={6}>
+              {error}
+            </Typography>
+          ) : products.length === 0 ? (
+            <Typography textAlign="center" py={6}>
+              No products match these filters.
+            </Typography>
+          ) : (
+            <Box
+              display="grid"
+              gridTemplateColumns={
+                grid === "list" ? "1fr" : `repeat(${grid}, 1fr)`
+              }
+              gap={3}
+            >
+              {products.map((p) => (
+                <ProductCard
+                  key={p.product_id}
+                  product={p}
+                  addToCart={addToCart}
+                  onQuickView={setQuickViewProduct}
+                />
+              ))}
+            </Box>
+          )}
+          {total > limit && (
+            <Box display="flex" justifyContent="center" mt={3}>
+              <Pagination
+                count={Math.ceil(total / limit)}
+                page={page}
+                onChange={(_event, value) => setPage(value)}
+              />
+            </Box>
+          )}
         </Box>
       </Box>
       {quickViewProduct && (

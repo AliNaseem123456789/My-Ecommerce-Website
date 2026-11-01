@@ -10,8 +10,15 @@ export const ShopService = {
     return apiClient.get("/categories");
   },
 
-  getProducts({ categories = [], sort = "" }) {
-    const params = {};
+  getProducts({
+    categories = [],
+    sort = "",
+    minPrice = "",
+    maxPrice = "",
+    page = 1,
+    limit = 12,
+  }) {
+    const params = { page, limit };
 
     if (categories.length > 0) {
       params.categories = categories.join(",");
@@ -20,6 +27,8 @@ export const ShopService = {
     if (sort) {
       params.sort = sort;
     }
+    if (minPrice !== "") params.minPrice = minPrice;
+    if (maxPrice !== "") params.maxPrice = maxPrice;
 
     return apiClient.get("/products", { params });
   },

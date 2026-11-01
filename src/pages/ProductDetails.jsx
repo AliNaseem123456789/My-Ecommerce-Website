@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import { productService } from "../services/product.service";
-import { productImages as galleryFor } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 import { reviewService } from "../services/review.service";
 import { questionService } from "../services/question.service";
 
@@ -40,11 +40,13 @@ function ProductDetails() {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showQuestionModal, setShowQuestionModal] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
+      setError("");
       try {
         console.log("Fetching Product ID:", id);
 
@@ -62,11 +64,12 @@ function ProductDetails() {
           setProduct(prodData);
           setReviews(reviewData || []);
           setQuestions(questionData || []);
-          loadProductImages(id);
+          loadProductImages(prodData);
         }
       } catch (err) {
         console.error("FULL ERROR OBJECT:", err);
         setProduct(null);
+        setError("This product could not be loaded. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -75,8 +78,8 @@ function ProductDetails() {
     loadAllData();
   }, [id]);
 
-  const loadProductImages = (productId) => {
-    setProductImages(galleryFor(productId));
+  const loadProductImages = (item) => {
+    setProductImages([productImageFrom(item)]);
   };
 
   if (loading) {
@@ -89,6 +92,14 @@ function ProductDetails() {
       >
         <CircularProgress color="inherit" />
       </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Typography textAlign="center" mt={6}>
+        {error}
+      </Typography>
     );
   }
 

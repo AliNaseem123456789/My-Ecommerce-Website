@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { FaTimes, FaRegStar, FaStar } from "react-icons/fa";
 import { WishlistContext } from "./context/WishlistContext";
-import { productPrimaryImage } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 
 export default function QuickViewModal({ product, onClose }) {
   const { wishlist, toggleWishlist } = useContext(WishlistContext);
@@ -67,7 +67,7 @@ export default function QuickViewModal({ product, onClose }) {
         {}
         <div style={{ flex: 1, paddingRight: "20px" }}>
           <img
-            src={productPrimaryImage(id)}
+            src={productImageFrom(product)}
             alt={product.name}
             style={{
               width: "100%",

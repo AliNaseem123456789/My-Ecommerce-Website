@@ -15,7 +15,7 @@ export const searchService = {
       return response;
     } catch (error) {
       console.error("Search error:", error);
-      return [];
+      throw error;
     }
   },
 

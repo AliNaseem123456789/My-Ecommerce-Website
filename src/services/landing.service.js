@@ -12,6 +12,14 @@ export const LandingService = {
   },
 
   async getAllProducts() {
-    return apiClient.get("/products");
+    const limit = 60;
+    const first = await apiClient.get("/products", { params: { page: 1, limit } });
+    const items = [...(first.items || [])];
+    const pages = Math.ceil((first.total || 0) / (first.limit || limit));
+    for (let page = 2; page <= pages; page += 1) {
+      const next = await apiClient.get("/products", { params: { page, limit } });
+      items.push(...(next.items || []));
+    }
+    return items;
   },
 };

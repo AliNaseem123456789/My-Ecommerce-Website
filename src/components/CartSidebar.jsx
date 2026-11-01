@@ -3,7 +3,7 @@ import { CartContext } from "./context/CartContext";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import styles from "../styles/CartSidebar.module.css";
-import { productPrimaryImage } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 
 export default function CartSidebar({ onClose }) {
   const { cartItems, updateQuantity, removeFromCart } = useContext(CartContext);
@@ -35,7 +35,7 @@ export default function CartSidebar({ onClose }) {
           {cartItems.map((item) => (
             <div key={item.cart_item_id} className={styles.item}>
               <img
-                src={productPrimaryImage(item.products.product_id)}
+                src={productImageFrom(item.products)}
                 alt={item.products.name}
                 className={styles.image}
               />

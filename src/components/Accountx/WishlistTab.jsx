@@ -4,7 +4,7 @@ import { CartContext } from "../context/CartContext";
 import { AccountService } from "../../services/account.service";
 import { X } from "lucide-react";
 import "../../styles/WishlistTab.css";
-import { productPrimaryImage } from "../../utils/productImage";
+import { productImageFrom } from "../../utils/productImage";
 
 export default function WishlistTab() {
   const { wishlist, removeWishlist } = useContext(WishlistContext);
@@ -56,7 +56,7 @@ export default function WishlistTab() {
         <p className="empty-msg">Your wishlist is empty.</p>
       ) : (
         products.map((product) => {
-          const imageUrl = productPrimaryImage(product.product_id);
+          const imageUrl = productImageFrom(product);
           return (
             <div key={product.product_id} className="wishlist-row">
               {/* PRODUCT INFO AREA */}

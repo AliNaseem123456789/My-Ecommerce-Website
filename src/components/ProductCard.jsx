@@ -1,10 +1,10 @@
-import React, { useState, useContext, useMemo } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaEye, FaBalanceScale, FaRegStar, FaStar } from "react-icons/fa";
 import { WishlistContext } from "./context/WishlistContext";
 
 import styles from "../styles/ProductCard.module.css";
-import { productImages } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 
 export default function ProductCard({ product, addToCart, onQuickView }) {
   const [hover, setHover] = useState(false);
@@ -13,9 +13,7 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
   const { wishlist, toggleWishlist } = useContext(WishlistContext);
   const id = product.product_id;
 
-  const images = useMemo(() => productImages(id), [id]);
-
-  const displayedImage = hover && images.length > 1 ? images[1] : images[0];
+  const displayedImage = productImageFrom(product);
 
   const isWishlisted = wishlist.includes(id);
 

@@ -4,7 +4,7 @@ import { Pencil, Truck, Ticket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import styles from "../styles/cart.module.css";
-import { productPrimaryImage } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 
 export default function Cart() {
   const { cartItems, updateQuantity, removeFromCart } = useContext(CartContext);
@@ -29,7 +29,7 @@ export default function Cart() {
           <div key={item.cart_item_id} className={styles.cartRow}>
             <div className={styles.productInfo}>
               <img
-                src={productPrimaryImage(item.products.product_id)}
+                src={productImageFrom(item.products)}
                 alt={item.products.name}
                 className={styles.productImage}
               />

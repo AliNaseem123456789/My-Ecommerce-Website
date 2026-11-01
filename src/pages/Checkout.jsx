@@ -17,7 +17,7 @@ import CheckoutSavedAddresses from "../components/Checkout/CheckoutSavedAdresses
 import CheckoutGuest from "../components/Checkout/CheckoutGuest";
 import AuthModal from "../components/AuthModal";
 import { paymentsService } from "../services/payments.service";
-import { productPrimaryImage } from "../utils/productImage";
+import { productImageFrom } from "../utils/productImage";
 
 import paypal from "../assets/Logos/Paypal.jpeg";
 import karna from "../assets/Logos/karna.jpeg";
@@ -348,9 +348,7 @@ export default function Checkout() {
           <CheckoutSummary
             cartItems={cartItems.map((item) => ({
               ...item,
-              image: productPrimaryImage(
-                item.products.product_id || item.products.id,
-              ),
+              image: productImageFrom(item.products),
             }))}
             subtotal={subtotal}
             shippingMethod={shippingMethod}
