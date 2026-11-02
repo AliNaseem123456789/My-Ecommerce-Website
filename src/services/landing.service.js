@@ -11,6 +11,31 @@ export const LandingService = {
     return apiClient.get("/categories");
   },
 
+  // Derived rows: no curation needed, they fill themselves from store data.
+  async getBestSellers(limit = 8) {
+    return apiClient.get("/products/best-sellers", { params: { limit } });
+  },
+
+  async getNewArrivals(limit = 8) {
+    return apiClient.get("/products/new-arrivals", { params: { limit } });
+  },
+
+  async getTopRated(limit = 8) {
+    return apiClient.get("/products/top-rated", { params: { limit } });
+  },
+
+  async getMostWishlisted(limit = 8) {
+    return apiClient.get("/products/most-wishlisted", { params: { limit } });
+  },
+
+  /** A few products inside a price band, used to illustrate the price tiles. */
+  async getByPriceBand({ minPrice, maxPrice, limit = 3 }) {
+    const params = { page: 1, limit };
+    if (minPrice != null) params.minPrice = minPrice;
+    if (maxPrice != null) params.maxPrice = maxPrice;
+    return apiClient.get("/products", { params });
+  },
+
   async getAllProducts() {
     const limit = 60;
     const first = await apiClient.get("/products", { params: { page: 1, limit } });

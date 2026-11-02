@@ -5,7 +5,10 @@ import { WishlistContext } from "./context/WishlistContext";
 import { CompareContext } from "./context/compare-context";
 
 import styles from "../styles/ProductCard.module.css";
-import { productImageFrom } from "../utils/productImage";
+import {
+  productImageFrom,
+  productHoverImageFrom,
+} from "../utils/productImage";
 
 export default function ProductCard({ product, addToCart, onQuickView }) {
   const [hover, setHover] = useState(false);
@@ -15,7 +18,9 @@ export default function ProductCard({ product, addToCart, onQuickView }) {
   const { items: compareItems, toggleCompare } = useContext(CompareContext);
   const id = product.product_id;
 
-  const displayedImage = productImageFrom(product);
+  const primaryImage = productImageFrom(product);
+  const hoverImage = productHoverImageFrom(product);
+  const displayedImage = hover && hoverImage ? hoverImage : primaryImage;
 
   const isWishlisted = wishlist.includes(id);
 

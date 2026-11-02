@@ -1,0 +1,326 @@
+/* Promo, collection and brand cards.
+   Same visual language as the product cards: white surfaces, 18px radius,
+   soft shadow, 4px hover lift. Accents are muted tints, not saturated blocks. */
+
+.content-section {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 44px 16px 8px;
+}
+
+.content-section--tinted {
+  max-width: none;
+  background: #f9fafb;
+  padding-bottom: 36px;
+  margin-top: 36px;
+}
+
+.content-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.content-title {
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  color: #111827;
+  margin: 0;
+}
+
+.content-subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin: 6px 0 0;
+}
+
+/* ------------------------------ promo cards ------------------------------ */
+
+.promo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.promo-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 250px;
+  padding: 22px 20px;
+  border-radius: 18px;
+  border: 1px solid #eceef1;
+  background: #ffffff;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.promo-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Muted accents, chosen to sit beside the existing neutral palette. */
+.promo-card--sand {
+  background: #faf6f0;
+  border-color: #f0e7da;
+}
+.promo-card--sage {
+  background: #f2f6f2;
+  border-color: #e1ebe2;
+}
+.promo-card--mist {
+  background: #f2f5f9;
+  border-color: #e2e9f1;
+}
+.promo-card--blush {
+  background: #faf2f3;
+  border-color: #f1e2e4;
+}
+.promo-card--ink {
+  background: #f4f4f5;
+  border-color: #e6e6e8;
+}
+
+.promo-badge {
+  align-self: flex-start;
+  margin-bottom: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.promo-headline {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.promo-subhead {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.promo-fineprint {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: #9ca3af;
+}
+
+.promo-code {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 5px 10px;
+  border: 1px dashed #c9ccd1;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #374151;
+}
+
+.promo-spacer {
+  flex: 1;
+  min-height: 12px;
+}
+
+.promo-cta {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  position: relative;
+  z-index: 1;
+}
+
+.promo-image {
+  width: 100%;
+  height: 108px;
+  margin-top: 10px;
+  object-fit: contain;
+  object-position: bottom right;
+}
+
+/* Fallback artwork: two overlapping arcs tinted by the card's own accent. */
+.promo-motif {
+  position: absolute;
+  right: -56px;
+  bottom: -72px;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, 0.045);
+  pointer-events: none;
+}
+
+.promo-motif::after {
+  content: "";
+  position: absolute;
+  left: 42px;
+  top: 34px;
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: rgba(17, 24, 39, 0.05);
+}
+
+/* --------------------------- collection cards --------------------------- */
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.collection-card {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.collection-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.collection-media {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.collection-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.collection-card:hover .collection-media img {
+  transform: scale(1.04);
+}
+
+.collection-body {
+  padding: 16px 16px 20px;
+}
+
+.collection-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.collection-desc {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.collection-count {
+  margin-top: 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* ------------------------------ brand strip ----------------------------- */
+
+.brand-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.brand-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 92px;
+  padding: 14px;
+  border: 1px solid #eceef1;
+  border-radius: 18px;
+  background: #ffffff;
+  text-decoration: none;
+  color: #4b5563;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.brand-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.09);
+}
+
+.brand-tile img {
+  max-width: 100%;
+  max-height: 56px;
+  object-fit: contain;
+}
+
+@media (max-width: 1024px) {
+  .promo-grid,
+  .collection-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .brand-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .content-title {
+    font-size: 22px;
+  }
+
+  .promo-grid,
+  .collection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .promo-card {
+    min-height: 0;
+  }
+
+  .brand-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

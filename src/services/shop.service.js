@@ -15,6 +15,8 @@ export const ShopService = {
     sort = "",
     minPrice = "",
     maxPrice = "",
+    brand = "",
+    collection = "",
     page = 1,
     limit = 12,
   }) {
@@ -29,6 +31,8 @@ export const ShopService = {
     }
     if (minPrice !== "") params.minPrice = minPrice;
     if (maxPrice !== "") params.maxPrice = maxPrice;
+    if (brand) params.brand = brand;
+    if (collection) params.collection = collection;
 
     return apiClient.get("/products", { params });
   },

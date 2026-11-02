@@ -6,11 +6,11 @@ import ProductCard from "../components/ProductCard";
 // Components
 import LandingNavbar from "../components/Landing/LandingNavbar";
 import MainBanner from "../components/Landing/MainBanner";
+import FeaturedCategories from "../components/Landing/FeaturedCategories";
+import LandingSections from "../components/Landing/LandingSections";
 import LandingProductCard from "../components/Landing/LandingProductCard";
 import SideBySide from "../components/Landing/SideBySide";
 import BrandStatement from "../components/Landing/BrandStatements";
-import Testimonials from "../components/Landing/Testimonials";
-import RecentlyViewed from "../components/RecentlyViewed";
 import { heroImages } from "../data/heroData";
 import { LandingService } from "../services/landing.service";
 
@@ -104,6 +104,7 @@ export default function LandingPage() {
     <>
       <LandingNavbar />
       <MainBanner heroImages={heroImages} />
+      <FeaturedCategories />
 
       <section className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>All Products</h2>
@@ -261,8 +262,7 @@ export default function LandingPage() {
             </div>
           )}
         </section>
-        <Testimonials />
-        <RecentlyViewed />
+        <LandingSections />
         <div className={styles.sectionSpacing}></div>
       </section>
     </>

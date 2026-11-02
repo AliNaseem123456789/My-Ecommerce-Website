@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const baseURL = "https://ecommerce-website-backend-k4vc.onrender.com/api/v1";
+const baseURL = "http://localhost:3000/api/v1";
+// const baseURL = "https://ecommerce-website-backend-k4vc.onrender.com/api/v1";
 
 const apiClient = axios.create({
   baseURL,

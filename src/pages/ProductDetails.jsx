@@ -3,7 +3,10 @@ import { Link, useParams } from "react-router-dom";
 import { AuthContext } from "../components/context/AuthContext";
 
 import { productService } from "../services/product.service";
-import { productImageFrom } from "../utils/productImage";
+import {
+  productImageFrom,
+  productImagesFrom,
+} from "../utils/productImage";
 import { Helmet } from "react-helmet-async";
 import { track } from "@vercel/analytics";
 import RecentlyViewed from "../components/RecentlyViewed";
@@ -97,7 +100,9 @@ function ProductDetails() {
   }, [id]);
 
   const loadProductImages = (item) => {
-    setProductImages([productImageFrom(item)]);
+    const gallery = productImagesFrom(item);
+    setProductImages(gallery.length ? gallery : [productImageFrom(item)]);
+    setSelectedImageIndex(0);
   };
 
   if (loading) {

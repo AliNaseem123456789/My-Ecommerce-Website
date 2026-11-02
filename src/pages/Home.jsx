@@ -4,6 +4,8 @@ import { CartContext } from "../components/context/CartContext";
 import ProductCard from "../components/ProductCard";
 
 import MainBanner from "../components/Landing/MainBanner";
+import FeaturedCategories from "../components/Landing/FeaturedCategories";
+import LandingSections from "../components/Landing/LandingSections";
 import LandingProductCard from "../components/Landing/LandingProductCard";
 import SideBySide from "../components/Landing/SideBySide";
 import BrandStatement from "../components/Landing/BrandStatements";
@@ -11,8 +13,6 @@ import WhyShopWithUs from "../components/Landing/WhyShopWithUs";
 
 import { heroImages } from "../data/heroData";
 import { LandingService } from "../services/landing.service";
-import Testimonials from "../components/Landing/Testimonials";
-import RecentlyViewed from "../components/RecentlyViewed";
 import styles from "../styles/LandingPage.module.css";
 
 export default function Home() {
@@ -102,6 +102,7 @@ export default function Home() {
   return (
     <>
       <MainBanner heroImages={heroImages} />
+      <FeaturedCategories />
 
       <section className={styles.sectionHeader}>
         <h2 className={styles.sectionTitle}>All Products</h2>
@@ -269,9 +270,8 @@ export default function Home() {
         </section>
 
         <div className={styles.sectionSpacing}>
-          <Testimonials />
-          <RecentlyViewed />
-        </div>
+          <LandingSections />
+          </div>
       </section>
     </>
   );

@@ -31,9 +31,13 @@ function Shop() {
   );
 
   const [grid, setGrid] = useState(3);
-  const [sort, setSort] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
+  // Landing-page links such as /shop?minPrice=25&maxPrice=50 and
+  // /shop?sort=rating need to arrive with their filters already applied.
+  const [sort, setSort] = useState(queryParams.get("sort") || "");
+  const [minPrice, setMinPrice] = useState(queryParams.get("minPrice") || "");
+  const [maxPrice, setMaxPrice] = useState(queryParams.get("maxPrice") || "");
+  const brand = queryParams.get("brand") || "";
+  const collection = queryParams.get("collection") || "";
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit, setLimit] = useState(12);
@@ -47,7 +51,7 @@ function Shop() {
 
   useEffect(() => {
     loadProducts();
-  }, [selectedCategories, sort, minPrice, maxPrice, page, categories]);
+  }, [selectedCategories, sort, minPrice, maxPrice, page, categories, brand, collection]);
 
   const loadCategories = async () => {
     try {
@@ -67,6 +71,8 @@ function Shop() {
         sort,
         minPrice,
         maxPrice,
+        brand,
+        collection,
         page,
         limit: 12,
       });
