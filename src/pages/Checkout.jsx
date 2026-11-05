@@ -20,6 +20,7 @@ import { paymentsService } from "../services/payments.service";
 import { couponService, shippingService } from "../services/coupon.service";
 import { productImageFrom } from "../utils/productImage";
 import { track } from "@vercel/analytics";
+import { takeCheckoutPrefill } from "../components/ShopAssistant/chatApi";
 
 import paypal from "../assets/Logos/Paypal.jpeg";
 import karna from "../assets/Logos/karna.jpeg";
@@ -75,6 +76,9 @@ export default function Checkout() {
   const [shippingMethod, setShippingMethod] = useState(null);
   const [promo, setPromo] = useState(null);
   const [promoMessage, setPromoMessage] = useState("");
+  // Details collected by the shopping assistant (read once, then cleared).
+  const [chatPrefill] = useState(() => takeCheckoutPrefill());
+  const [prefillApplied, setPrefillApplied] = useState(false);
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + Number(item.products.price) * item.quantity,
@@ -104,11 +108,12 @@ export default function Checkout() {
       });
       setShippingOptions(priced);
       setShippingMethod((current) => {
-        const match = priced.find((option) => option.code === current?.code);
+        const wanted = current?.code || chatPrefill?.shipping;
+        const match = priced.find((option) => option.code === wanted);
         return match || priced[0] || null;
       });
     }).catch(() => setShippingOptions([]));
-  }, [subtotal]);
+  }, [subtotal, chatPrefill?.shipping]);
 
   const totalAmount =
     subtotal - (promo?.discount || 0) + (shippingMethod?.price || 0);
@@ -118,6 +123,28 @@ export default function Checkout() {
       setForm((f) => ({ ...f, email: user.email }));
     }
   }, [user]);
+
+  // Apply the assistant's hand-off: address and coupon.
+  useEffect(() => {
+    if (!chatPrefill || prefillApplied) return;
+    setPrefillApplied(true);
+    if (chatPrefill.address) {
+      setForm((f) => ({ ...f, ...chatPrefill.address }));
+      if (!user && chatPrefill.address.email) setGuestStarted(true);
+    }
+    if (chatPrefill.address_id) setSelectedAddressId(chatPrefill.address_id);
+    if (chatPrefill.coupon) {
+      couponService
+        .validate(chatPrefill.coupon, cartUserId)
+        .then((result) => {
+          if (result.valid) {
+            setPromo({ code: chatPrefill.coupon, discount: result.discount });
+            setPromoMessage(result.message);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [chatPrefill, prefillApplied, user, cartUserId]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -338,6 +365,7 @@ export default function Checkout() {
           />
           <CheckoutSavedAddresses
             userId={user?.id}
+            preferredAddressId={chatPrefill?.address_id}
             onAddressSelected={setSelectedAddressId}
             initialFormData={form}
             onFormChange={(updatedForm) => setForm(updatedForm)}

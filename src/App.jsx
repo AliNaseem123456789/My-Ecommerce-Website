@@ -33,7 +33,7 @@ import Checkout from "./pages/Checkout";
 import Breadcrumbs from "./components/Breadcrumbs";
 import NotFoundPage from "./pages/NotFoundPage";
 import FAQ from "./pages/static/FAQ";
-import FloatingChat from "./components/FloatingChat";
+import ShopAssistant from "./components/ShopAssistant";
 import RouteMeta from "./components/RouteMeta";
 import AdminRoute from "./admin/AdminRoute";
 
@@ -72,7 +72,6 @@ function AppWrapper() {
 
   const showSidebar =
     isSidebarOpen && location.pathname !== "/cart" && !isAdminArea;
-  const userId = localStorage.getItem("userId") || null;
 
   const getBotConfig = () => {
     const path = location.pathname;
@@ -204,14 +203,7 @@ function AppWrapper() {
       {!isAdminArea && <CompareBar />}
       {!isAdminArea && <Footer />}
       {!isAdminArea && (
-        <FloatingChat
-          botId={botConfig.botId}
-          apiUrl="https://chatbot-gateway-production-bd16.up.railway.app"
-          title={botConfig.title}
-          welcomeMessage={botConfig.welcomeMessage}
-          primaryColor={botConfig.primaryColor}
-          userId={userId}
-        />
+        <ShopAssistant title={botConfig.title} accent="#111827" />
       )}
     </>
   );

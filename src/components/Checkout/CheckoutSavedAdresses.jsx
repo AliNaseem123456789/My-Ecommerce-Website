@@ -25,6 +25,7 @@ import apiClient from "../../api/apiClient";
 
 export default function CheckoutSavedAddresses({
   userId,
+  preferredAddressId,
   onAddressSelected,
   initialFormData,
   onFormChange,
@@ -73,7 +74,9 @@ export default function CheckoutSavedAddresses({
       );
       const rows = response || [];
       setSavedAddresses(rows);
-      const preferred = rows.find((address) => address.is_default);
+      const preferred =
+        rows.find((address) => address.id === preferredAddressId) ||
+        rows.find((address) => address.is_default);
       if (preferred) {
         setSelectedAddressId(preferred.id);
         const selectedForm = {
@@ -96,7 +99,7 @@ export default function CheckoutSavedAddresses({
     } finally {
       setLoading(false);
     }
-  }, [userId, initialFormData?.email, onAddressSelected, onFormChange]);
+  }, [userId, preferredAddressId, initialFormData?.email, onAddressSelected, onFormChange]);
 
   useEffect(() => {
     if (userId) {
